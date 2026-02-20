@@ -1,48 +1,37 @@
 # Github-Repository-Management/src/main/java/com/Barsat/Github/Repository/Management/Config/Jwt/JwtUtils.java
 
 ### Overview
-This file provides utility functions for JSON Web Token (JWT) operations, including generation, parsing, and validation. It is designed to be used within a Spring Boot application for authentication and authorization contexts.
+This file defines a Spring service class, `JwtUtils`, responsible for the lifecycle management of JSON Web Tokens (JWTs). It handles the generation, parsing, validation, and extraction of claims from JWTs within the application, primarily for authentication and authorization purposes.
 
 ### Architecture & Role
-This file is annotated as a Spring `@Service`, positioning it within the service layer of the application. It belongs to the security or authentication configuration component, specifically handling JWT lifecycle management. It integrates with Spring Security by accepting `UserDetails` objects for token validation.
+`JwtUtils` operates at the security configuration layer of the application. Annotated with `@Service`, it is managed by the Spring IoC container and designed to be injected into other components that require JWT capabilities. Its primary role is to provide utility functions for creating and verifying JWTs, integrating with Spring Security's `UserDetails` for token validation.
 
 ### Key Components
-*   **`JwtUtils` class**: The main service class that encapsulates all JWT-related functionalities.
-*   **`secretKey` field**: Stores the Base64-encoded secret key used for signing and verifying JWTs. This key is generated dynamically during the object's instantiation.
-*   **`JwtUtils()` constructor**: Initializes the `secretKey` by generating a new `HmacSHA256` key and encoding it.
-*   **`generateToken(String username)`**: Creates a new JWT, setting the subject (username), issuance date, and expiration date (30 hours from issuance).
-*   **`getMykey()`**: Decodes the stored Base64 `secretKey` and returns it as a `SecretKey` object suitable for HMAC operations.
-*   **`extractUsername(String token)`**: Extracts the subject claim (username) from a given JWT.
-*   **`extractAllClaims(String token)`**: Parses and verifies the JWT's signature using the secret key, then returns all contained claims.
-*   **`validateToken(String token, UserDetails userDetails)`**: Validates a token by checking if its embedded username matches the provided `UserDetails` username and if the token has not expired.
+*   **`JwtUtils` class**: A Spring service that encapsulates all JWT-related logic.
+*   **`secretKey` field**: A private string field that stores the Base64 encoded HmacSHA256 secret key used for signing and verifying JWTs. This key is generated dynamically upon the service's instantiation.
+*   **`generateToken(String username)`**: Creates a new JWT, setting the subject, issue date, and a fixed 30-hour expiration.
+*   **`extractUsername(String token)`**: Parses a given JWT to retrieve the subject claim (username).
+*   **`validateToken(String token, UserDetails userDetails)`**: Verifies a JWT by checking its signature, ensuring it's not expired, and confirming the extracted username matches the provided `UserDetails`.
+*   **`extractAllClaims(String token)`**: A private helper method that parses and verifies the signature of a token, returning all its claims.
+*   **`getMykey()`**: A private helper method that decodes the stored `secretKey` into a `SecretKey` object suitable for JWT signing and verification.
 
 ### Execution Flow / Behavior
-1.  **Initialization**: When the `JwtUtils` service is instantiated by the Spring container, its constructor executes, generating a unique `HmacSHA256` secret key. This key is immediately Base64 encoded and stored.
-2.  **Token Generation**: Upon a call to `generateToken(String username)`, a new JWT is constructed. It is signed using the internally generated `secretKey` and configured with a 30-hour expiration period.
-3.  **Token Extraction/Parsing**: When methods like `extractUsername`, `extractExpiration`, or `extractClaim` are invoked, they delegate to `extractAllClaims(String token)`. This method first uses the `secretKey` to verify the token's signature, ensuring its integrity, before parsing and returning the claims payload.
-4.  **Token Validation**: The `validateToken` method performs two primary checks: it extracts the username from the token and compares it against the username provided by `UserDetails`, and it verifies that the token's expiration time has not passed.
+1.  **Initialization**: When the `JwtUtils` bean is instantiated by the Spring container, its constructor executes. This process involves generating a new HmacSHA256 secret key using `KeyGenerator`, encoding it to Base64, and storing it in the `secretKey` instance variable.
+2.  **Token Generation**: When `generateToken(username)` is called, a JWT is constructed. It includes the provided `username` as the subject, the current timestamp as the issuance time, and an expiration time set 30 hours from the current moment. The token is then signed using the dynamically generated `secretKey` and returned as a compact string.
+3.  **Token Validation**: When `validateToken(token, userDetails)` is invoked, the method first extracts the username from the provided `token`. It then verifies that this extracted username matches the username from the `userDetails` object and simultaneously checks if the token has expired. Both conditions must be true for the token to be considered valid.
+4.  **Claim Extraction**: Methods like `extractUsername` and `extractExpiration` internally use `extractAllClaims` to parse the token and verify its signature with the `secretKey`. Once validated, they apply a claim resolver function to extract the specific claim.
 
 ### Dependencies
-*   **External Libraries**:
-    *   `io.jsonwebtoken.*`: JJWT library for all core JWT operations (building, parsing, signing, verifying).
-    *   `javax.crypto.*`, `java.security.*`: Standard Java Cryptography Architecture (JCA) for key generation.
-*   **Spring Framework**:
-    *   `org.springframework.stereotype.Service`: Marks this class as a Spring-managed service component.
-    *   `org.springframework.security.core.userdetails.UserDetails`: An interface from Spring Security, used for validating tokens against application user details.
+*   **`io.jsonwebtoken` (JJWT)**: An external library providing the core functionality for creating, parsing, and signing JWTs (`Jwts`, `Claims`, `Decoders`, `Keys`).
+*   **`org.springframework.security.core.userdetails.UserDetails`**: An interface from Spring Security used to represent user details, enabling integration with the application's authentication system during token validation.
+*   **`org.springframework.stereotype.Service`**: A Spring Framework annotation indicating that this class is a service component, eligible for auto-detection and dependency injection.
+*   **`javax.crypto.KeyGenerator`**: Standard Java API for generating cryptographic keys.
+*   **`java.security.NoSuchAlgorithmException`**: Standard Java exception for cases where a requested cryptographic algorithm is not available.
 
 ### Design Notes
-*   **Dynamic Secret Key**: The secret key for JWT signing and verification is generated programmatically upon application startup. This simplifies initial setup but means the key changes every time the application restarts. For production environments, a static, securely managed key (e.g., configured via environment variables or a key management system) is typically preferred to ensure token validity across restarts or multiple service instances.
-*   **Fixed Expiration Time**: Tokens are configured with a fixed expiration of 30 hours. This duration should be reviewed based on security policies and user experience requirements.
-*   **Error Handling**: The constructor catches `NoSuchAlgorithmException` during key generation and re-throws it as a `RuntimeException`, indicating a critical setup failure if the `HmacSHA256` algorithm is unavailable on the JVM.
+*   **Runtime Secret Key Generation**: The `secretKey` is generated programmatically at application startup. This simplifies deployment as no external key configuration is immediately required, but it means the key will change every time the application restarts, invalidating all previously issued tokens. For multi-instance deployments or persistent sessions across restarts, a more robust key management strategy (e.g., external configuration, key vault, or static key) would be necessary.
+*   **Fixed Token Expiration**: All generated tokens have a fixed expiration time of 30 hours. There is no configurable option to vary this duration based on different use cases or user roles.
+*   **Basic Claim Set**: The tokens generated by this utility only include `subject`, `issuedAt`, and `expiration` claims. Other common claims like `issuer` or `audience` are not added, which might be a consideration for more complex microservice architectures or multi-party authentication scenarios.
 
 ### Diagram (Optional)
-```mermaid
-graph TD
-A[Generate Token] --> B[Get My Key]
-C[Extract Username] --> D[Extract Claim]
-E[Extract Expiration] --> D[Extract Claim]
-D[Extract Claim] --> F[Extract All Claims]
-F[Extract All Claims] --> B[Get My Key]
-G[Validate Token] --> C[Extract Username]
-G[Validate Token] --> E[Extract Expiration]
-```
+None significant.
