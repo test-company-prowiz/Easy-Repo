@@ -1,53 +1,60 @@
 # Github-Repository-Management/src/main/java/com/Barsat/Github/Repository/Management/Config/Jwt/JwtFilter.java
 
 ### Overview
-This file defines a Spring Security filter (`JwtFilter`) responsible for intercepting incoming HTTP requests, extracting a JSON Web Token (JWT) from the Authorization header, validating it, and authenticating the user within the Spring Security context.
+This file defines a Spring `OncePerRequestFilter` named `JwtFilter`. Its purpose is to intercept incoming HTTP requests, extract and validate JSON Web Tokens (JWTs) from the Authorization header, and establish the authenticated user context within Spring Security.
 
 ### Architecture & Role
-Architecturally, this file acts as a security filter within the application's Spring Security filter chain. It operates at the authentication layer, specifically handling token-based authentication. Its role is to bridge JWT-based stateless authentication with Spring Security's established authentication mechanisms, allowing subsequent security filters to recognize an authenticated user based on a valid JWT.
+The `JwtFilter` resides in the security configuration layer of the application. It functions as an authentication filter within the Spring Security filter chain. Its role is to process JWTs for stateless authentication, allowing subsequent security components to operate on an already authenticated `SecurityContext` without requiring traditional session-based logins.
 
 ### Key Components
-*   `JwtFilter` class: A Spring `@Component` that extends `OncePerRequestFilter`, ensuring its `doFilterInternal` method is executed only once per HTTP request. It contains the primary logic for JWT processing.
-*   `doFilterInternal` method: This overridden method implements the core logic for extracting, validating, and processing the JWT to set up authentication.
-*   `jwtUtils`: An injected utility class responsible for JWT-specific operations such as extracting the username and validating the token's integrity and expiration.
-*   `myUserDetailsService`: An injected service that loads user-specific data, including authorities, based on a username extracted from the JWT.
+- **`JwtFilter` class**: Extends `OncePerRequestFilter`, ensuring that it is executed only once per HTTP request. It is annotated with `@Component`, making it a Spring-managed bean.
+- **`jwtUtils`**: An injected instance of `JwtUtils` (assumed) responsible for JWT-specific operations such as extracting the username from a token and validating the token's integrity and expiration.
+- **`myUserDetailsService`**: An injected instance of `MyUserDetailsService` (assumed, implementing `UserDetailsService`) which loads user-specific data (`UserDetails`) from a data store based on a username.
+- **`doFilterInternal` method**: The core method overriding `OncePerRequestFilter`'s abstract method. It contains the logic for token extraction, validation, and setting the Spring Security `SecurityContext`.
 
 ### Execution Flow / Behavior
-1.  An HTTP request enters the Spring Security filter chain.
-2.  The `JwtFilter`'s `doFilterInternal` method is invoked.
-3.  It attempts to retrieve the "Authorization" header from the `HttpServletRequest`.
-4.  If the header exists and starts with "Bearer ", the JWT token is extracted.
-5.  The username is then extracted from this token using `jwtUtils.extractUsername()`.
-6.  If a username is successfully extracted and no authentication object is currently present in the `SecurityContextHolder`:
-    *   User details are loaded using `myUserDetailsService.loadUserByUsername()`.
-    *   The JWT token is validated against the loaded `UserDetails` using `jwtUtils.validateToken()`.
-    *   If the token is valid, a `UsernamePasswordAuthenticationToken` is created, populated with `UserDetails` and request specifics, and then set in `SecurityContextHolder.getContext().setAuthentication()`.
-7.  Regardless of whether authentication occurred, `filterChain.doFilter(request, response)` is called to pass the request to the next filter in the chain.
+1. An HTTP request enters the filter chain, and the `doFilterInternal` method of `JwtFilter` is invoked.
+2. The method attempts to read the "Authorization" header from the request.
+3. If the header is present and starts with "Bearer ", the JWT token is extracted.
+4. The username is then extracted from this token using `jwtUtils`.
+5. If a username is successfully extracted and there is no existing authentication in the `SecurityContextHolder`, the process continues:
+    a. `UserDetails` for the extracted username are loaded via `myUserDetailsService`.
+    b. The JWT token is validated against these `UserDetails` using `jwtUtils`.
+    c. If the token is valid, a `UsernamePasswordAuthenticationToken` is constructed using the `UserDetails`.
+    d. This authentication token is then augmented with request-specific details.
+    e. Finally, this token is set in the `SecurityContextHolder`, thereby authenticating the user for the duration of the current request.
+6. Regardless of whether authentication occurred, the filter ensures that the request proceeds to the next filter in the chain by calling `filterChain.doFilter()`.
 
 ### Dependencies
-*   **Internal:**
-    *   `com.Barsat.Github.Repository.Management.Service.MyUserDetailsService`: Provides user details for authentication based on a username.
-    *   `com.Barsat.Github.Repository.Management.Config.Jwt.JwtUtils`: Handles JWT token creation, parsing, and validation.
-*   **External:**
-    *   `org.springframework.security.web.filter.OncePerRequestFilter`: Base class for filters that execute once per request.
-    *   `org.springframework.security.core.context.SecurityContextHolder`: Manages the security context, storing the currently authenticated user.
-    *   `org.springframework.security.authentication.UsernamePasswordAuthenticationToken`: Represents an authentication request or an authenticated principal.
-    *   `org.springframework.stereotype.Component`: Marks the class as a Spring-managed component.
-    *   `jakarta.servlet.*`: Standard Servlet API classes for request, response, and filter chain operations.
+- **Internal**:
+    - `com.Barsat.Github.Repository.Management.Service.MyUserDetailsService`: Crucial for loading user details based on the username extracted from the JWT.
+    - `com.Barsat.Github.Repository.Management.Config.Jwt.JwtUtils`: Provides the necessary utility functions for handling JWTs, including parsing and validation.
+- **External**:
+    - `jakarta.servlet.*`: Standard Servlet API for HTTP request/response handling and filter chain management.
+    - `org.springframework.security.*`: Spring Security framework components, including authentication tokens, user details management, and the `SecurityContextHolder` for managing the authenticated principal.
+    - `org.springframework.stereotype.Component`: Spring annotation for component scanning.
+    - `org.springframework.web.filter.OncePerRequestFilter`: Spring base class for web filters.
 
 ### Design Notes
-The `JwtFilter` leverages Spring Security's `OncePerRequestFilter` to ensure that JWT validation and user authentication occur only once per incoming request. By injecting `JwtUtils` and `MyUserDetailsService`, it adheres to the Single Responsibility Principle, delegating specific concerns like token operations and user detail fetching to dedicated services. This design allows for a clear separation of concerns, making the authentication flow maintainable and extensible. It integrates seamlessly with Spring Security by updating the `SecurityContextHolder`, allowing the rest of the application to operate as if standard session-based authentication had occurred.
+- The use of `OncePerRequestFilter` ensures that the JWT validation logic is executed exactly once per incoming request, preventing redundant processing.
+- The design cleanly separates concerns by delegating JWT-specific operations to `JwtUtils` and user details retrieval to `MyUserDetailsService`, making `JwtFilter` focused on orchestrating the authentication flow.
+- The filter integrates directly with Spring Security's `SecurityContextHolder`, providing a standard and idiomatic way to manage user authentication state.
+- The current implementation assumes `jwtUtils.validateToken` handles token expiration and integrity checks, returning `false` on failure. Explicit error responses for invalid tokens (e.g., 401 Unauthorized) are not directly handled within this filter's `doFilterInternal` method but would typically be configured at a higher level in Spring Security's exception handling.
 
 ### Diagram (Optional)
 ```mermaid
 graph TD
-A[HTTP Request] --> B[Jwt Filter]
-B --> C{Extract Authorization Header}
-C -- Has Bearer Token --> D[Extract JWT and Username]
-D --> E[Load User Details]
-E --> F[Validate JWT]
-F -- Valid Token & User --> G[Set Security Context]
-G --> H[Continue Filter Chain]
-F -- Invalid Token or No User --> H
-C -- No Bearer Token --> H
+A[HTTP Request] --> B{Authorization Header?};
+B -- Yes --> C{Starts with Bearer?};
+C -- Yes --> D[Extract JWT Token and Username];
+D --> E{Username present AND No existing Auth?};
+E -- Yes --> F[Load UserDetails by Username];
+F --> G{Validate Token with UserDetails?};
+G -- Yes --> H[Create UsernamePasswordAuthenticationToken];
+H --> I[Set Auth Token in SecurityContext];
+I --> J[Continue Filter Chain];
+G -- No --> J;
+E -- No --> J;
+C -- No --> J;
+B -- No --> J;
 ```
