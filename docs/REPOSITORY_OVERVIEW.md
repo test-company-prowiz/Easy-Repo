@@ -1,63 +1,69 @@
 # Easy-Repo — Repository Overview
 
 ### High-Level Purpose
-This repository contains a Spring Boot application designed to manage and provide insights into a user's GitHub repositories. Its primary objective is to integrate with GitHub for user authentication via OAuth2, fetch repository data, and process it, offering a secure backend with provisions for various authentication mechanisms including JWT.
+This repository implements a Spring Boot application that integrates with GitHub to manage user repositories and provide insights. Its primary objective is to facilitate secure user authentication, synchronize repository data from GitHub, process this data into collections, and offer an API for various repository-related operations. It also includes a client-side React application as its frontend.
 
 ### Architectural Structure
-The application employs a standard layered architecture within a Spring Boot framework.
-*   **`Config` Layer**: Centralizes application-wide configurations, particularly for Spring Security, JWT processing, and OAuth2 integration.
-*   **`Service` Layer**: Contains the core business logic, including user management, OAuth operations, GitHub repository fetching and saving, data processing for repository collections, and user insights.
-*   **`Repository` Layer**: Provides the data access objects (DAOs) for persisting user entities.
-*   **`Models` Layer**: Defines the data transfer objects (DTOs) and entity structures used across the application.
-Developer tooling configuration for Visual Studio Code, such as `.vscode/settings.json`, exists independently at the development environment layer, not affecting the runtime architecture.
+The backend application follows a layered architecture, common in Spring Boot projects:
+*   **`Config` Layer**: Houses global configurations, including Spring Security settings, JWT token handling, and OAuth2 integration.
+*   **`Service` Layer**: Encapsulates the application's core business logic, such as user management, GitHub API interactions (fetching/saving repositories), repository collection management, and user insight generation.
+*   **`Controller` Layer**: Exposes RESTful API endpoints, handling incoming HTTP requests and delegating processing to the service layer.
+*   **`Repository` Layer**: Provides data access interfaces for interacting with the persistence store for entities like `TheUser`.
+*   **`Models` Layer**: Defines JPA entities for database persistence and Data Transfer Objects (DTOs) for structured data exchange between layers and API responses.
+*   **Frontend (`grms-frontend`)**: A separate React application that serves as the client-side interface, bootstrapping with `main.tsx`.
+*   **Development Configuration (`.vscode`)**: Contains IDE-specific settings, primarily for Visual Studio Code's Java extension.
 
 ### Core Components
-*   **`SecurityConfig`**: The central configuration component for Spring Security, defining authorization rules, authentication providers, CORS policy, session management, and integrating OAuth2 login.
-*   **`JwtFilter`**: (Currently inactive in the security filter chain) Intended to intercept incoming HTTP requests to validate and process JSON Web Tokens (JWTs) for authentication.
-*   **`JwtUtils`**: A utility service responsible for the lifecycle management of JWTs, including generating, validating, and extracting claims from tokens.
-*   **`OAuthSuccessionHandler`**: A custom Spring Security handler that executes upon successful OAuth2 authentication (specifically GitHub). It provisions users, initiates data synchronization (fetching repositories), generates initial repository collections, and issues a JWT token.
-*   **`MyUserDetailsService`**: An implementation of Spring Security's `UserDetailsService` to load user-specific data required during authentication.
-*   **`UserRepo`**: A data repository component responsible for persistence operations related to `TheUser` entities.
-*   **`GithubFetchSaveService`**: A service dedicated to fetching and persisting a user's repositories from the GitHub API into the application's data store.
-*   **`RepoCollectionsService`**: Manages the creation and organization of user-defined collections of repositories.
-*   **`UserInsightService`**: Gathers and processes user-specific insights, such as disk usage, derived from repository data.
+*   **`SecurityConfig`**: Configures the Spring Security filter chain, defining authorization rules, authentication providers (DAO, OAuth2), CORS policy, and session management.
+*   **`JwtUtils`**: A service component responsible for generating, extracting claims from, and validating JSON Web Tokens (JWTs).
+*   **`JwtFilter`**: A Spring Security filter designed to process and validate JWTs from incoming requests, though it is currently commented out from the main security filter chain.
+*   **`OAuthSuccessionHandler`**: A custom Spring Security handler that processes successful OAuth2 logins, creating/updating user records, triggering repository data synchronization from GitHub, generating initial repository collections, and issuing a JWT.
+*   **`MyUserDetailsService`**: An implementation of Spring Security's `UserDetailsService` for loading user details during authentication.
+*   **`UserRepo`**: A Spring Data JPA repository for persisting and retrieving `TheUser` entities.
+*   **`GithubFetchSaveService`**: Manages the fetching of repositories from GitHub's API and their persistence in the application's database.
+*   **`RepoCollectionsService`**: Handles the creation, retrieval, and modification of user-defined repository collections.
+*   **`RepoInsightController`**: Provides API endpoints for querying GitHub repository insights, such as lines of code and README content.
+*   **`AuthController`**: Manages user registration and traditional username/password login, issuing JWTs upon successful authentication.
 
 ### Interaction & Data Flow
-The primary high-level runtime interaction described is the OAuth2 login flow:
-1.  An unauthenticated user initiates an OAuth2 login, typically through GitHub.
-2.  Upon successful authentication with GitHub, Spring Security invokes the application's `OAuthSuccessionHandler`.
-3.  The `OAuthSuccessionHandler` extracts user details provided by GitHub and either creates a new `TheUser` entity or updates an existing one, persisting it via `UserRepo`.
-4.  It then orchestrates calls to `GithubFetchSaveService` to retrieve and save the user's repositories and to `RepoCollectionsService` to set up initial repository collections.
-5.  A JWT is generated by `JwtUtils` and added to the HTTP response header.
-6.  Finally, the user is redirected to a configured frontend application URL.
-
-For subsequent requests, the system currently uses `SessionCreationPolicy.ALWAYS` and supports basic HTTP authentication. While a `JwtFilter` component exists for stateless JWT authentication, it is not actively integrated into the main Spring Security filter chain as configured, indicating a primary reliance on session-based or OAuth-driven authentication.
+The primary interaction flow involves user authentication via OAuth2:
+1.  A client initiates an OAuth2 login (e.g., with GitHub).
+2.  Upon successful authentication with the OAuth provider, Spring Security invokes `OAuthSuccessionHandler`.
+3.  The handler extracts user details and access tokens from the OAuth response.
+4.  It then either creates a new `TheUser` entity or updates an existing one via `UserRepo`.
+5.  Subsequently, `GithubFetchSaveService` is triggered to pull the user's repositories from GitHub, and `RepoCollectionsService` initializes collections.
+6.  `JwtUtils` generates an authentication JWT, which is set in the HTTP response header.
+7.  Finally, the client is redirected to a pre-configured frontend URL.
+For subsequent authenticated API requests, the system is configured to use session-based authentication (`SessionCreationPolicy.ALWAYS`) and basic HTTP authentication. While a `JwtFilter` exists, its integration into the primary security filter chain is currently disabled, meaning JWTs are issued but not primarily validated by the filter chain for every request.
 
 ### Technology Stack
-*   **Backend Framework**: Spring Boot, Spring Security.
-*   **Authentication/Authorization**: OAuth2 (with specific GitHub integration), JSON Web Tokens (using the JJWT library), BCrypt for secure password hashing.
+*   **Backend Framework**: Spring Boot, Spring Security (with OAuth2, JWT, BCryptPasswordEncoder).
+*   **Persistence**: Spring Data JPA, Hibernate (inferred).
 *   **Web**: Spring Web (built on Jakarta Servlet API).
-*   **Development Tooling**: Visual Studio Code (configured via `.vscode/settings.json` for Java development).
-*   **External Integrations**: GitHub API (implicitly through `GithubFetchSaveService`).
-*   **Cryptography**: Standard Java Cryptography Architecture (JCA) for key generation.
+*   **Frontend**: React, NextUI.
+*   **Security Libraries**: JJWT (`io.jsonwebtoken`), `javax.crypto` for key generation.
+*   **Utility Libraries**: Project Lombok (for boilerplate reduction).
+*   **JSON Processing**: Jackson (`com.fasterxml.jackson.annotation`).
+*   **Development Tools**: Visual Studio Code.
 
 ### Design Observations
-*   **Modular Security Design**: The application exhibits a clear separation of concerns within its security components, with dedicated classes for JWT utilities, OAuth success handling, and overall Spring Security configuration.
-*   **Dynamic JWT Secret Key Generation**: The JWT secret key is generated programmatically at application startup. While convenient for development, this approach causes all previously issued tokens to become invalid upon application restart, making it unsuitable for multi-instance deployments or scenarios requiring persistent sessions across restarts. A static or externally managed key strategy would improve robustness.
-*   **Immediate Post-Authentication Data Provisioning**: Upon successful OAuth2 login, the system proactively fetches GitHub repositories and initializes repository collections, aiming to provide a fully prepared user environment instantly.
-*   **Mixed Authentication Mechanisms**: The `SecurityConfig` supports both OAuth2 login and basic HTTP authentication. The `SessionCreationPolicy.ALWAYS` setting suggests a preference for session-based interactions for the active authentication methods. The `JwtFilter` component is present but explicitly commented out from the security filter chain, indicating that JWT-based authentication is either under development or an optional/alternative mechanism not currently enabled.
-*   **Potential Null JWT Subject**: In `OAuthSuccessionHandler`, the `userName` field, intended for JWT subject, is declared but not explicitly initialized from the authenticated user's attributes before being used by `jwtUtils.generateToken`. This could result in JWTs being generated with a `null` subject, which requires review.
+*   **Hybrid Authentication Strategy**: The backend supports multiple authentication methods, including OAuth2 and username/password login, alongside `SessionCreationPolicy.ALWAYS`. The `JwtFilter` is present but inactive in the main security chain, suggesting a potential future stateless JWT-first approach or an intentional hybrid design.
+*   **Dynamic JWT Secret Key**: The `JwtUtils` component generates a new HmacSHA256 secret key every time the application starts. This provides convenience during development but will invalidate all existing JWTs upon restart, which is problematic for multi-instance deployments or persistent sessions. A stable, externally managed key is recommended for production.
+*   **Proactive Data Synchronization**: The system immediately fetches and processes GitHub repository data upon successful OAuth2 authentication, aiming to provide a rich user experience from the first login.
+*   **Delegation for Deletion/Renaming**: Repository deletion and renaming are not handled directly via API calls but by redirecting the user to GitHub's settings page. This design choice avoids requesting sensitive "delete" OAuth scopes, potentially improving user trust.
+*   **Potential `null` JWT Subject**: The `OAuthSuccessionHandler` might generate JWTs with a `null` subject due to an uninitialized `userName` variable passed to `JwtUtils.generateToken`. This requires review.
+*   **Lombok for Conciseness**: Extensive use of Project Lombok significantly reduces boilerplate code in DTOs and entities, enhancing readability and maintainability.
 
-### System Diagram (Optional)
+### System Diagram
 
 ```mermaid
 graph TD
-A[OAuth2 Success] --> B[onAuthenticationSuccess Called]
-B --> C[Extract OAuth User Data]
-C --> D[Store OAuth Tokens]
-D --> E[Create or Update TheUser]
-E --> F[Fetch and Save Repositories]
-F --> G[Generate Repo Collections]
-G --> H[Generate JWT Token]
-H --> I[Redirect to Frontend]
+A[OAuth2Success] --> B[OnAuthenticationSuccess]
+B --> C[ExtractOAuthUserData]
+C --> D[StoreOAuthTokens]
+D --> E[CreateOrUpdateTheUser]
+E --> F[FetchAndSaveRepositories]
+F --> G[GenerateRepoCollections]
+G --> H[GenerateJwtToken]
+H --> I[RedirectToFrontend]
 ```
