@@ -7,33 +7,34 @@
 # grms-frontend/src/index.css
 
 ### Overview
-This file serves as the main stylesheet for the frontend application, integrating Tailwind CSS and defining foundational global styles. It establishes a consistent visual base for the user interface.
+This file serves as the main entry point for global CSS styles within the GRMS frontend application. It integrates the Tailwind CSS framework and defines foundational styling rules for the entire user interface.
 
 ### Architecture & Role
-This file is part of the presentation layer within the frontend architecture. It acts as the entry point for global styling, including the import of Tailwind's base, component, and utility layers, alongside application-specific global CSS rules. It is processed during the build phase to generate the final CSS bundle applied to the web application.
+This file is part of the presentation layer of the frontend application. It acts as the primary stylesheet, responsible for initializing the Tailwind CSS framework and applying global aesthetic conventions, ensuring a consistent look and feel across all components.
 
 ### Key Components
-- `@tailwind base;`: Integrates Tailwind CSS's opinionated base styles, normalizing cross-browser element styling.
-- `@tailwind components;`: Injects Tailwind's component-specific styles, often used for generated component classes.
-- `@tailwind utilities;`: Provides access to all of Tailwind's utility classes for use in markup and `@apply` directives.
-- `body` styling: Sets the global font-family to "lato", serif.
-- `*:focus:not(ol)` rule: Defines a custom focus indicator using Tailwind utilities, applying an outline, ring, and border for accessibility.
-- `select` appearance reset: Disables default browser styling for select elements across different rendering engines.
-- `.no-scrollbar` utility: A custom utility class defined within `@layer utilities` to hide scrollbars for elements it is applied to, supporting Webkit, IE/Edge, and Firefox.
+- **Tailwind CSS Directives**:
+    - `@tailwind base;`: Injects Tailwind's base styles for normalizing HTML elements.
+    - `@tailwind components;`: Injects styles for common UI components, if defined.
+    - `@tailwind utilities;`: Injects the vast collection of Tailwind's utility classes.
+- **Global `body` Styles**: Sets the default `font-family` for the entire document to "lato", with a `serif` fallback.
+- **Global Focus Styles**: A CSS rule (`*:focus:not(ol)`) that applies a consistent visual feedback (cyan ring and border) to focused elements, excluding ordered list items. This uses Tailwind's `@apply` directive.
+- **`select` Element Reset**: Overrides default browser appearance for `<select>` elements to facilitate custom styling.
+- **`.no-scrollbar` Utility Class**: A custom utility class, defined within a `@layer utilities` block, that hides scrollbars across different browsers (WebKit, IE/Edge, Firefox) for elements it is applied to.
 
 ### Execution Flow / Behavior
-During the frontend build process, a CSS preprocessor (e.g., PostCSS with Tailwind CSS) reads this file. The `@tailwind` directives are expanded into their respective CSS rules. Subsequently, the custom global styles for `body`, `*:focus:not(ol)`, and `select` are applied. Finally, the `.no-scrollbar` utility is added to the `utilities` layer, making it available for use in the application's HTML or other stylesheets. At runtime, browsers apply these aggregated styles to the DOM.
+During the application's build process, a CSS preprocessor (typically PostCSS configured with Tailwind CSS) processes this file. The `@tailwind` directives are expanded into their full CSS declarations, and `@apply` rules are replaced with their respective utility class properties. The resulting CSS bundle is then linked or imported into the main HTML document. At runtime, browsers apply these compiled global styles to the DOM, governing the visual presentation of all rendered elements.
 
 ### Dependencies
-- **External**:
-    - `Tailwind CSS`: Core dependency for the `@tailwind` directives and utility classes (`@apply`, `ring-2`, `border-cyan-400`, `outline-none`).
-    - `"lato"` font: The `font-family` declaration implies reliance on the "lato" font being available, likely imported elsewhere or loaded via a CDN.
+- **Tailwind CSS**: This file directly depends on the Tailwind CSS framework for its directives (`@tailwind`, `@apply`) and utility class system.
+- **PostCSS**: Implicitly depends on PostCSS (or a compatible CSS processor) for interpreting and transforming the Tailwind-specific syntax into standard CSS.
+- **`lato` Font**: Declares a dependency on the "lato" font. For this font to render, it must be loaded into the document (e.g., via a `<link>` tag or `@import` rule in a font stylesheet).
 
 ### Design Notes
-- **Utility-First Styling**: The file heavily leverages Tailwind CSS's utility-first approach by importing its layers and using `@apply` directives for custom styles.
-- **Global Consistency**: Centralizes global styles for the `body` font and `select` element appearance, ensuring a consistent look across the application.
-- **Accessibility**: Implements a custom, visible focus state using `ring-2 ring-cyan-400`, enhancing usability for keyboard navigation. The `:not(ol)` selector avoids interfering with default focus styles on ordered lists.
-- **Cross-Browser Scrollbar Hiding**: Provides a robust solution for hiding scrollbars, useful for components requiring custom scroll behaviors or simplified aesthetics.
+- **Utility-First Styling**: The adoption of Tailwind CSS through this entry point emphasizes a utility-first approach, promoting rapid UI development and consistent styling.
+- **Global Consistency**: Centralizing base styles, such as font family and focus indicators, ensures a uniform appearance and improved accessibility throughout the application.
+- **Custom Utility Extension**: The `@layer utilities` block demonstrates the extensibility of Tailwind CSS, allowing the definition of project-specific utility classes (e.g., `.no-scrollbar`) that integrate with the framework's layering system.
+- **Browser Normalization**: Specific rules for `select` elements and scrollbars address common cross-browser rendering inconsistencies, improving visual predictability.
 
 ### Diagram
 None significant.
