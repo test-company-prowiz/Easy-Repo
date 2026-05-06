@@ -7,49 +7,52 @@
 # grms-frontend/src/App.tsx
 
 ### Overview
-This file defines the root `App` component, which serves as the entry point for the frontend application. Its primary responsibility is to configure global services such as client-side routing and data fetching/caching, and to orchestrate the top-level layout of the application's routes, including protected routes.
+This file defines the root component (`App`) of the React frontend application. Its primary purpose is to establish the global client-side routing configuration and integrate a global state management solution for data fetching and caching.
 
 ### Architecture & Role
-Architecturally, `App.tsx` functions as the main application shell and resides at the top of the UI layer. It is the root component rendered by React, responsible for initializing global contexts and defining the application's navigational structure.
+Architecturally, `App.tsx` serves as the top-level entry point for the user interface layer. It sits at the highest level of the component tree, orchestrating navigation and providing core services like data management to its child components.
 
 ### Key Components
-*   **`App` function**: The primary React functional component that renders the entire application.
-*   **`QueryClient`**: An instance from `@tanstack/react-query` responsible for managing global state related to data fetching, caching, and synchronization.
-*   **`QueryClientProvider`**: A context provider that makes the `queryClient` instance available to all descendant components.
-*   **`BrowserRouter` (as `Router`)**: The top-level component from `react-router-dom` that enables client-side routing using the browser's history API.
-*   **`Routes`**: A component that acts as a container for individual `Route` definitions, matching the current URL to a specific component.
-*   **`Route`**: Defines a mapping between a URL path and the React element to render when that path is active.
-*   **`ProtectedRoutes`**: An internal component designed to wrap other routes, enforcing authentication or authorization before rendering its children.
-*   **`Login`, `Home`, `DashBoard`**: Imported UI components representing different views within the application.
+*   **`App` function**: The main React functional component that renders the application's structure.
+*   **`QueryClient`**: An instance used by `@tanstack/react-query` to manage global cache and data fetching logic.
+*   **`QueryClientProvider`**: A React context provider that makes the `QueryClient` instance available throughout the component tree.
+*   **`BrowserRouter` (aliased as `Router`)**: The top-level component for client-side routing, synchronizing the UI with the URL.
+*   **`Routes`**: A component that wraps individual `Route` definitions, enabling `react-router-dom` to match the current URL against defined paths.
+*   **`Route`**: Defines a specific path and the component to render when that path is active.
+*   **`Login`**: Component for user authentication.
+*   **`Home`**: The application's landing page component.
+*   **`DashBoard`**: A component representing a user's dashboard, requiring authentication.
+*   **`ProtectedRoutes`**: A custom component designed to wrap routes that require user authentication, enforcing access control.
 
 ### Execution Flow / Behavior
-When the `App` component is rendered, it first instantiates a `QueryClient`. This client is then passed to the `QueryClientProvider`, making it globally accessible. Subsequently, `BrowserRouter` initializes the routing context. The `Routes` component then evaluates the current URL:
-*   Requests to `/` are handled by the `Home` component.
-*   Requests to `/login` are handled by the `Login` component.
-*   Requests to `/dashboard` are nested within `ProtectedRoutes`. If the `ProtectedRoutes` component determines the user is not authorized or authenticated, it will typically redirect them, preventing direct access to `DashBoard`.
+1.  Upon application startup, the `App` component is rendered as the root.
+2.  A new `QueryClient` instance is created, setting up the global data caching mechanism.
+3.  The `QueryClientProvider` wraps the entire application, making the `queryClient` accessible to all components.
+4.  The `BrowserRouter` (Router) initializes, enabling client-side navigation.
+5.  The `Routes` component evaluates the current URL:
+    *   If the path is `/`, the `Home` component is rendered.
+    *   If the path is `/login`, the `Login` component is rendered.
+    *   If the path is `/dashboard`, the `ProtectedRoutes` component is first rendered. `ProtectedRoutes` is responsible for checking authentication status. If authenticated, it renders the `DashBoard` component; otherwise, it redirects the user (behavior inferred from the name).
 
 ### Dependencies
-*   **`react-router-dom`**: Provides core routing functionalities like `BrowserRouter`, `Routes`, and `Route`. Essential for client-side navigation.
-*   **`@tanstack/react-query`**: Offers capabilities for efficient asynchronous data fetching, caching, and state management.
-*   **`./components/AuthComponents/Login`**: Internal component for user authentication.
-*   **`./components/HomeComponents/Home`**: Internal component for the application's landing page.
-*   **`./components/DashBoard`**: Internal component for the authenticated user dashboard.
-*   **`./ProtectedRoutes/ProtectedRoutes`**: Internal component for implementing route-level access control.
+*   **`react-router-dom`**: External library for declarative routing in React applications (`BrowserRouter`, `Routes`, `Route`).
+*   **`@tanstack/react-query`**: External library for server-state management, data fetching, caching, and synchronization (`QueryClient`, `QueryClientProvider`).
+*   **`./components/AuthComponents/Login`**: Internal component for user login.
+*   **`./components/HomeComponents/Home`**: Internal component for the application's home page.
+*   **`./components/DashBoard`**: Internal component for the user dashboard.
+*   **`./ProtectedRoutes/ProtectedRoutes`**: Internal custom component for handling authenticated routes.
 
 ### Design Notes
-The `App` component consolidates global configuration (routing, data fetching) in a central location, promoting modularity for individual pages and components. The use of nested routes with `ProtectedRoutes` provides a declarative and scalable pattern for securing application areas, separating authorization logic from component rendering. This structure improves maintainability by clearly defining the application's main entry points and their access requirements.
+The application's design separates public routes (`/`, `/login`) from authenticated routes (`/dashboard`) using the `ProtectedRoutes` wrapper. This pattern ensures that authentication logic is centralized and applied consistently to restricted areas of the application. The integration of `@tanstack/react-query` at the root level signifies an application-wide approach to efficient data fetching, caching, and invalidation, reducing boilerplate and improving performance.
 
 ### Diagram
 ```mermaid
 graph TD
-A[App] --> B[QueryClientProvider]
-B --> C[BrowserRouter]
-C --> D[Routes]
-D --> E[RouteHome]
-D --> F[RouteLogin]
-D --> G[RouteProtected]
-E[Route path=/] --> H[Home]
-F[Route path=/login] --> I[Login]
-G[Route element=ProtectedRoutes] --> J[RouteDashBoard]
-J[Route path=/dashboard] --> K[DashBoard]
+AppComp --> QueryClientProviderWrapper[QueryClientProvider]
+AppComp --> ReactRouter[BrowserRouter]
+ReactRouter --> RoutesDefinition[Routes]
+RoutesDefinition --> HomePage[Home]
+RoutesDefinition --> LoginPage[Login]
+RoutesDefinition --> ProtectedRoutesWrapper[ProtectedRoutes]
+ProtectedRoutesWrapper --> DashboardPage[DashBoard]
 ```
