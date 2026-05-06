@@ -7,42 +7,39 @@
 # grms-frontend/src/main.tsx
 
 ### Overview
-This file serves as the primary entry point for the client-side React application. It is responsible for initializing the React rendering engine and mounting the root application component into the DOM.
+This file serves as the main entry point for the client-side React application, responsible for initializing the rendering process and setting up global UI providers.
 
 ### Architecture & Role
-Architecturally, this file acts as the application's bootstrapping layer within the frontend client. It resides at the presentation layer, specifically handling the initial rendering and setup of the React component tree within the browser environment.
+Architecturally, this file functions as the root of the user interface layer. It bootstraps the entire React application by rendering the primary `App` component into the Document Object Model (DOM) and integrates essential global contexts, such as the UI component library's theme provider.
 
 ### Key Components
--   **`createRoot` (from `react-dom/client`)**: Initializes a React root for concurrent mode rendering.
--   **`StrictMode` (from `react`)**: A wrapper component that activates additional checks and warnings for its descendants during development.
--   **`NextUIProvider` (from `@nextui-org/react`)**: Provides context for NextUI components, enabling them to access theme, motion, and other UI-related configurations.
--   **`App` (from `./App.tsx`)**: The root component of the application, encapsulating the main application logic and UI.
+-   `createRoot`: A function from `react-dom/client` used to establish a React root for concurrent rendering.
+-   `StrictMode`: A React wrapper component that activates additional development-time checks and warnings for its descendant components.
+-   `NextUIProvider`: A context provider from the `@nextui-org/react` library, essential for NextUI components to function correctly and to apply global UI configurations, including theming.
+-   `App`: The main application component that encapsulates the entire user interface structure and logic.
 
 ### Execution Flow / Behavior
-Upon execution in the browser, the script performs the following actions:
-1.  It identifies the DOM element with the ID `root`.
-2.  A React root is created using `createRoot` for this DOM element.
-3.  The main application component (`App`) is rendered within a `StrictMode` wrapper.
-4.  The `App` component is further nested inside a `NextUIProvider` to ensure NextUI components function correctly and share theme context.
-5.  A `main` HTML element with `dark text-foreground bg-background` classes is used to apply a global dark theme and background.
-6.  This entire component tree is then rendered into the previously identified `root` DOM element, initiating the React application.
+Upon execution, the file imports all necessary modules. It then locates the HTML element with the ID `root` in the `document`. The `createRoot` function is invoked to render the main React component tree into this identified DOM element. The `App` component is nested within `StrictMode` for development diagnostics and within `NextUIProvider` to apply NextUI styling and theme context. A `main` HTML element wraps the `App` component, explicitly applying the `dark` theme and setting `text-foreground` and `bg-background` classes, indicating theme-dependent text and background colors.
 
 ### Dependencies
--   **`react`**: Core React library for UI component definition.
--   **`react-dom/client`**: Provides client-specific DOM rendering capabilities for React.
--   **`@nextui-org/react`**: External UI component library providing the `NextUIProvider` for theme and component context.
--   **`./index.css`**: Global CSS styles applied across the application.
--   **`./App.tsx`**: The main application component, representing the entire UI structure.
+-   `react`: Provides core React functionalities, including the `StrictMode` component.
+-   `react-dom/client`: Offers client-specific utilities for DOM rendering, specifically `createRoot` for React 18+.
+-   `@nextui-org/react`: An external UI component library that supplies `NextUIProvider` for global theme management and component integration.
+-   `./index.css`: A local stylesheet containing global CSS rules applied across the application.
+-   `./App.tsx`: The principal application component, defining the high-level layout and functionality.
 
 ### Design Notes
-The use of `StrictMode` is a development-time best practice, helping to identify potential issues and deprecated lifecycles. Wrapping the entire application in `NextUIProvider` centralizes UI theme management. The explicit `main` element with `dark text-foreground bg-background` classes sets up the global dark mode styling at the root of the application, which is a common pattern for theme application.
+-   The use of `StrictMode` is a development-specific feature that aids in identifying potential issues, having no impact on production performance.
+-   `NextUIProvider` centrally manages the UI theme, with the `dark` class explicitly applied to the `main` element to enforce a dark mode aesthetic across the application.
+-   Leveraging React 18's `createRoot` enables concurrent rendering features, potentially improving perceived performance.
 
 ### Diagram
 ```mermaid
 graph TD
-A[DocumentRootElement] --> B[CreateReactRoot]
-B --> C[StrictModeWrapper]
-C --> D[NextUIProviderWrapper]
-D --> E[MainElementWithTheme]
-E --> F[AppRootComponent]
+A[Document] --> B[RootElement]
+B[RootElement] --> C[CreateRoot]
+C[CreateRoot] --> D[StrictMode]
+D[StrictMode] --> E[NextUIProvider]
+E[NextUIProvider] --> F[MainThemedElement]
+F[MainThemedElement] --> G[App]
 ```
