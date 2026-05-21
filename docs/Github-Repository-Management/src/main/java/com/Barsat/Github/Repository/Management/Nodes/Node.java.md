@@ -1,0 +1,52 @@
+# Github-Repository-Management/src/main/java/com/Barsat/Github/Repository/Management/Nodes/Node.java
+
+> **Source File:** [Github-Repository-Management/src/main/java/com/Barsat/Github/Repository/Management/Nodes/Node.java](https://github.com/test-company-prowiz/Easy-Repo/blob/master/Github-Repository-Management/src/main/java/com/Barsat/Github/Repository/Management/Nodes/Node.java)
+> **Repository:** `Easy-Repo`
+> **Branch:** `master`
+
+# Github-Repository-Management/src/main/java/com/Barsat/Github/Repository/Management/Nodes/Node.java
+
+### Overview
+This file defines the `Node` class, which represents a single element within a hierarchical data structure. It is designed to model files and directories, likely within a Git repository context, by storing properties such as name, type, path, URL, and references to parent and child nodes.
+
+### Architecture & Role
+The `Node` class serves as a fundamental data model within the application's domain layer. It provides the building blocks for constructing and manipulating in-memory tree structures that represent the contents of a repository. It resides in the `Nodes` package, indicating its role in managing tree-like data.
+
+### Key Components
+- **`Node` class**:
+    - **Fields**:
+        - `name`: The name of the file or directory.
+        - `isDirectory`: A boolean indicating if the node represents a directory.
+        - `parent`: A reference to the parent `Node`, forming the hierarchical link.
+        - `path`: The full path of the node within its hierarchy.
+        - `displayName`: A potentially user-friendly name for display purposes.
+        - `url`: The URL associated with the node (e.g., a GitHub file URL).
+        - `children`: A `Set` of child `Node` objects, allowing for multiple children.
+    - **Constructor**: Initializes a `Node` instance with its core properties.
+    - **`addChildrenToParent(Node children)`**: Adds a given `Node` to the current node's set of children.
+    - **`getParent()`**: Returns the parent node. Annotated with `@JsonIgnore` to prevent circular serialization.
+    - **`accessAnyNode(String name)`**: Recursively searches the current node and its descendants for a child node matching the given name.
+    - **`toStringHelper(Node node, int level)`**: A recursive helper method that generates a formatted, indented string representation of the node and its entire subtree, useful for debugging or visualization.
+
+### Execution Flow / Behavior
+`Node` objects are instantiated to represent individual files or directories. These objects are then linked together using their `parent` and `children` fields to construct a complete tree structure, typically representing a repository's content. The `addChildrenToParent` method facilitates this tree construction. Once built, the `accessAnyNode` method enables targeted retrieval of specific nodes by name through recursive traversal. The `toStringHelper` method provides a way to visualize the entire tree structure from any given node downwards.
+
+### Dependencies
+- **`com.fasterxml.jackson.annotation.JsonIgnore`**: Used to prevent `parent` field from being serialized, avoiding infinite recursion during JSON serialization.
+- **`lombok.Getter`**: Automatically generates getter methods for all fields.
+- **`lombok.Setter`**: Automatically generates setter methods for all fields.
+- **`lombok.ToString`**: Imported but not directly applied to the class.
+- **`com.fasterxml.jackson.core.JsonProcessingException`**: Imported but not used within this file.
+- **`com.fasterxml.jackson.databind.ObjectMapper`**: Imported but not used within this file.
+- **`jakarta.persistence.Entity`**: Imported but not used on the `Node` class.
+
+### Design Notes
+- **Tree Data Structure**: The class is explicitly designed as a node for an N-ary tree, supporting hierarchical data representation.
+- **Circular Reference Handling**: The `@JsonIgnore` annotation on `getParent()` is a critical design choice to prevent stack overflow errors during JSON serialization due to the bidirectional parent-child relationship.
+- **`HashSet` for Children**: Using a `HashSet` for `children` ensures that each child is unique and provides efficient child addition and lookup operations.
+- **Recursive Traversal**: The `accessAnyNode` and `toStringHelper` methods leverage recursion, which is a natural and idiomatic approach for tree traversal algorithms.
+- **Unused Imports**: The presence of `jakarta.persistence.Entity`, `JsonProcessingException`, and `ObjectMapper` imports without direct usage in this file suggests potential refactoring, planned future functionality, or a design decision to keep persistence/serialization logic separate from the core `Node` definition. The `@Entity` import is particularly notable if `Node` instances are not directly persisted.
+- **`toStringHelper` vs. Lombok `@ToString`**: The custom `toStringHelper` provides a specialized, formatted tree visualization, which differs from the default object representation generated by Lombok's `@ToString` annotation.
+
+### Diagram
+None significant.
