@@ -7,71 +7,65 @@
 # grms-frontend/src/components/Calendar/Calendar.tsx
 
 ### Overview
-This file defines the `ContinuousCalendar` React component, which provides a scrollable, year-long calendar view. It allows users to view days, navigate through years, jump to the current day, and add simple events. The calendar also includes a month selector that updates as the user scrolls.
+This file defines a `ContinuousCalendar` React component, which provides a scrollable, year-long calendar interface. It allows users to view days, navigate between years and months, jump to the current day, and add events to specific dates. It also includes a `Select` component for dropdown functionality.
 
 ### Architecture & Role
-This file resides in the frontend component layer of the `grms-frontend` application. It acts as a presentational and stateful UI component responsible for displaying calendar data and handling user interactions related to date selection and event management. It is a client-side component, indicated by `'use client'`.
+This file resides in the `components` directory, indicating its role as a reusable UI element within the frontend application. It functions as a client-side component, managing its own state for calendar navigation and event data. It is a presentational and interactive component, responsible for rendering a complex date picker and event display.
 
 ### Key Components
-*   **`ContinuousCalendarProps`**: Interface defining the props for `ContinuousCalendar`, primarily an optional `onClick` handler for day selections.
-*   **`Event`**: Interface describing the structure of an event, including `id`, `title`, and `date`.
-*   **`ContinuousCalendar`**: The main functional React component that renders the continuous calendar.
-    *   Manages internal state for the current year, selected month, events, and an "add event" modal.
-    *   Uses `useRef` to hold references to day elements for scrolling.
-    *   Utilizes `useMemo` for optimizing calendar day generation.
-    *   Employs `useEffect` to set up an `IntersectionObserver` for tracking the visible month during scrolling.
-*   **`SelectProps`**: Interface for the `Select` component's props.
-*   **`Select`**: A reusable functional React component for rendering a styled dropdown (`<select>`) element.
+*   **`ContinuousCalendarProps`**: Defines the props for the `ContinuousCalendar` component, including an optional `onClick` handler for day selection.
+*   **`Event`**: Interface representing an event with an `id`, `title`, and `date`.
+*   **`ContinuousCalendar`**:
+    *   A React functional component that renders the main calendar grid.
+    *   Manages state for the displayed `year`, `selectedMonth`, `events`, and the visibility of the `Add Event` modal.
+    *   Uses `useRef` (`dayRefs`) to maintain references to individual day elements for scroll synchronization.
+    *   Employs `useMemo` (`generateCalendar`) to optimize the generation of calendar days and weeks.
+*   **`SelectProps`**: Defines the props for the `Select` component, including `name`, `value`, `label`, `options`, `onChange`, and `className`.
+*   **`Select`**: A generic React functional component for rendering a customizable HTML `<select>` dropdown.
+*   **`daysOfWeek`**: A constant array of short day names for display.
+*   **`monthNames`**: A constant array of full month names for display and selection.
 
 ### Execution Flow / Behavior
-1.  The `ContinuousCalendar` component initializes with the current year and a default selected month.
-2.  `generateCalendar` (memoized) computes and structures the days of the entire year into weeks, including padding days from the previous and next year to ensure full weeks.
-3.  Each day rendered includes its date, indicates if it's "today," and displays any associated events. A button on each day allows opening an "Add Event" modal.
-4.  User interactions:
-    *   **Year Navigation**: `handlePrevYear` and `handleNextYear` update the `year` state, triggering a re-render of the calendar.
-    *   **Month Selection**: The `Select` component allows users to jump to a specific month. `handleMonthChange` updates `selectedMonth` and calls `scrollToDay` to smoothly scroll to the first day of the chosen month.
-    *   **Today Button**: `handleTodayClick` resets the year to the current year and scrolls to today's date.
-    *   **Day Click**: `handleDayClick` invokes the `onClick` prop with the selected day, month, and year.
-    *   **Add Event**: Clicking the "+" button on a day opens `showAddEventModal`. `handleAddEvent` adds the new event to the `events` state and closes the modal. Events are stored in local component state.
-5.  **Scrolling Interaction**: An `IntersectionObserver` monitors the visibility of the 15th day of each month within the `calendar-container`. When the 15th day of a month becomes visible, `selectedMonth` is updated, ensuring the month dropdown accurately reflects the user's current scroll position.
-6.  The `scrollToDay` function calculates the appropriate scroll position to bring a specific day into view, considering the container's height and responsive offsets.
+1.  **Initialization**: The `ContinuousCalendar` component initializes with the current year and month. It generates a full year's worth of days, including padding days from the previous/next year to complete weeks.
+2.  **Calendar Rendering**: The `generateCalendar` memoized function creates a grid of day elements. Each day displays its number, optionally the month name (for the first day of a month), and any associated events.
+3.  **Navigation**:
+    *   Users can change the displayed year using "Prev Year" and "Next Year" buttons.
+    *   A `Select` dropdown allows jumping to a specific month within the current year.
+    *   The "Today" button resets the calendar to the current date and scrolls to it.
+4.  **Day Interaction**:
+    *   Clicking a day triggers the `handleDayClick` function, which in turn calls the `onClick` prop if provided, passing the selected day, month, and year.
+    *   A "+" button on each day allows opening an "Add Event" modal.
+5.  **Event Management**:
+    *   The "Add Event" modal allows users to input an event title and date.
+    *   Submitting the modal adds a new event to the `events` state, which is then rendered on the corresponding day(s).
+6.  **Scroll Synchronization**:
+    *   A `useEffect` hook sets up an `IntersectionObserver` to monitor the visibility of the 15th day of each month.
+    *   As the user scrolls, the `selectedMonth` state is updated based on which month's 15th day is currently intersecting the viewport, ensuring the `Select` dropdown reflects the visible month.
+    *   `scrollToDay` function handles programmatic scrolling to a specific day.
 
 ### Dependencies
-*   **`react`**: Core dependency for React components and hooks (`useState`, `useEffect`, `useMemo`, `useRef`).
-*   **`Select` component**: An internal utility component exported from this same file, used by `ContinuousCalendar` for month selection.
-*   **Date API**: JavaScript's built-in `Date` object is extensively used for date calculations and formatting.
-*   **Tailwind CSS (implicit)**: Styling is heavily reliant on Tailwind CSS utility classes, visible throughout the `className` attributes.
-*   **SVG Icons**: External SVG icons are embedded for navigation buttons.
+*   **`react`**: Core React library for components, hooks (`useEffect`, `useMemo`, `useRef`, `useState`), and JSX rendering.
+*   **Internal `Select` component**: The `ContinuousCalendar` component utilizes the `Select` component defined within the same file for month navigation.
+*   **Browser APIs**: `IntersectionObserver` for scroll position detection and `window.matchMedia` for responsive scrolling offsets.
 
 ### Design Notes
-*   **Client-Side Rendering**: The `'use client'` directive signifies that this component is intended to run on the client, typical for interactive UI elements.
-*   **Continuous Scroll**: The calendar provides a continuous scrolling experience across the entire year, which is different from a paginated month-by-month view.
-*   **Local State Management**: Event data is managed purely within the component's local state (`events` array) and is not persisted externally. This implies that events will be lost on component unmount or page refresh. For persistence, external state management or API calls would be necessary.
-*   **Responsive Design**: The use of `sm:`, `lg:`, `2xl:` utility classes indicates that the component is designed to be responsive across various screen sizes.
-*   **Performance Optimization**: `useMemo` is applied to `generateCalendar` to prevent unnecessary re-computation of the entire year's calendar grid unless the `year` or `events` state changes.
-*   **Accessibility**: `aria-hidden` attributes are used for SVG icons, and `htmlFor` for labels, contributing to better accessibility.
+*   **Continuous Scroll Experience**: The calendar is designed for a continuous scrolling experience across the entire year, rather than discrete month-by-month views. This requires careful handling of scroll positions and month detection.
+*   **Performance Optimization**: `useMemo` is employed for `generateCalendar` to prevent unnecessary re-renders of the entire calendar grid when only state unrelated to day generation changes.
+*   **Accessibility**: Basic accessibility attributes like `aria-hidden` are used for SVG icons.
+*   **Styling**: Utilizes Tailwind CSS classes for layout and styling, indicated by the extensive `className` strings.
+*   **Date Handling**: The calendar logic for generating days handles the start of the year by potentially including days from the previous year to complete the first week, and similarly for the end of the year. This ensures a consistent grid layout but might require careful consideration for date boundaries in external integrations.
+*   **Event Storage**: Events are currently stored in local component state. For a production application, this data would typically be managed via a global state manager (e.g., Redux, Zustand) or fetched from a backend API.
 
-### Diagram 
+### Diagram
 ```mermaid
 graph TD
-ContinuousCalendar[ContinuousCalendar] --> StateManagement[State Management]
-StateManagement --> Year[YearState]
-StateManagement --> SelectedMonth[SelectedMonthState]
-StateManagement --> Events[EventsState]
-
-ContinuousCalendar --> GenerateCalendar[generateCalendar useMemo]
-GenerateCalendar --> CalendarGrid[Calendar Grid UI]
-
-ContinuousCalendar --> SelectMonthComponent[Select Component Month]
-SelectMonthComponent --> SelectedMonth
-
-CalendarGrid --> DayClick[handleDayClick onClick prop]
-CalendarGrid --> AddEventButton[Add Event Button]
-AddEventButton --> AddEventModal[Add Event Modal]
-AddEventModal --> HandleAddEvent[handleAddEvent]
-HandleAddEvent --> Events
-
-ContinuousCalendar --> ScrollLogic[scrollToDay]
-ContinuousCalendar --> IntersectionObserverLogic[Intersection Observer]
-IntersectionObserverLogic --> SelectedMonth
+ContinuousCalendar[ContinuousCalendar Component] --> SelectComponent[Select Component]
+ContinuousCalendar --> CalendarGrid[Calendar Grid]
+ContinuousCalendar --> AddEventModal[Add Event Modal]
+ContinuousCalendar --> IntersectionObserver[Intersection Observer API]
+AddEventModal --> EventsData[Events Data State]
+ContinuousCalendar --> EventsData
+IntersectionObserver --> ContinuousCalendar
+CalendarGrid --> ContinuousCalendar
+SelectComponent --> ContinuousCalendar
 ```

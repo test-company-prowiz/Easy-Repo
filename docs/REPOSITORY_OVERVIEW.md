@@ -7,25 +7,29 @@
 # Easy-Repo — Repository Overview
 
 ### High-Level Purpose
-The repository hosts a frontend application, likely a web-based system, identified as `grms-frontend`. Its primary objective, as inferred from the available component, is to provide a user interface that includes client-side route protection, ensuring controlled access to specific application sections for authenticated users.
+This repository appears to host a frontend application, likely part of a larger system (indicated by `grms-frontend`), focused on providing an interactive, continuous calendar interface with event management capabilities. Its primary objective is to enable users to view dates, navigate through a year, and manage events associated with specific days.
 
 ### Architectural Structure
-The repository structure includes a top-level `grms-frontend` directory, which encapsulates the entire frontend application. Within `grms-frontend`, a standard `src` directory contains the application's source code, organized into functional modules such as `ProtectedRoutes`. This indicates a modular organization for client-side features.
+The repository structure, as inferred from the provided file path (`grms-frontend/src/components`), indicates a client-side application built with a component-based architecture. The `components` directory suggests a modular organization for reusable UI elements, typical of modern frontend frameworks.
 
 ### Core Components
--   **`grms-frontend` Application**: The main client-side application responsible for rendering the user interface and managing user interactions.
--   **`ProtectedRoutes` Module**: A critical component within the frontend that enforces client-side access control for application routes, redirecting unauthenticated users.
+The primary core component identified is the `ContinuousCalendar`. This component is responsible for rendering a full year's calendar, managing date navigation, handling user interactions for day selection, and facilitating event creation and display. It encapsulates complex date calculation logic and UI state.
 
 ### Interaction & Data Flow
-User interaction occurs via the `grms-frontend` application in a web browser. When a user attempts to access a protected route, the `ProtectedRoutes` component intercepts the navigation. It checks the client's `sessionStorage` for an authentication flag. If the user is deemed authenticated, the requested route's content is rendered. Otherwise, the user is redirected to a dedicated login path. This entire process for route protection occurs client-side.
+User interaction drives the system's behavior. Users can navigate the calendar by year, month, or jump to the current day. They can select individual days and add events through a modal interface. Events are currently managed within the `ContinuousCalendar` component's local state. The UI updates dynamically based on user input and scroll position, utilizing browser APIs like `IntersectionObserver` to synchronize the visible month with navigation controls.
 
 ### Technology Stack
--   **Frontend Framework**: React (inferred from `.tsx` file extension and component structure).
--   **Routing Library**: `react-router-dom` for managing client-side navigation.
--   **Client-side Storage**: Browser `sessionStorage` for persisting temporary authentication status.
+*   **Frontend Framework**: React
+*   **Language**: TypeScript (inferred from `.tsx` file extension)
+*   **Styling**: Tailwind CSS
+*   **Browser APIs**: `IntersectionObserver` for scroll-based UI updates.
 
 ### Design Observations
-The current approach to client-side route protection relies on checking a flag in `sessionStorage`. While this provides a basic user experience for controlled navigation, it is not a substitute for comprehensive server-side authentication and authorization mechanisms. This design suggests that robust security validation for data access and operations would be handled by a backend system, which is not detailed in the provided information.
+*   **Client-Side Richness**: The application emphasizes a rich client-side experience, handling significant UI logic and state management directly within the browser.
+*   **Component Reusability**: The component-based structure promotes the development of modular and reusable UI elements.
+*   **Performance Considerations**: Techniques like `useMemo` are employed within complex components to optimize rendering performance.
+*   **Event State Management**: Currently, event data is managed in local component state. For a production-grade application, this would typically necessitate integration with a global state management solution or a backend API for persistence and shared access. This suggests a potential area for architectural evolution.
+*   **Continuous UI Paradigm**: The design choice of a "continuous scroll" calendar implies a focus on a fluid user experience over discrete, paginated views.
 
 ### System Diagram
 None significant.
