@@ -7,44 +7,25 @@
 # Easy-Repo — Repository Overview
 
 ### High-Level Purpose
-This repository hosts the `Github-Repository-Management` application, which is designed to manage and represent the hierarchical structure of GitHub repository contents. Its primary objective is to model files and directories as tree-like data structures for programmatic access and manipulation.
+The repository hosts a frontend application, likely a web-based system, identified as `grms-frontend`. Its primary objective, as inferred from the available component, is to provide a user interface that includes client-side route protection, ensuring controlled access to specific application sections for authenticated users.
 
 ### Architectural Structure
-The application follows a standard Spring Boot architecture.
--   **Bootstrap Layer**: The `GithubRepositoryManagementApplication` serves as the entry point, initializing the Spring application context.
--   **Domain Model Layer**: The `Nodes` package contains core data models, such as the `Node` class, which represents individual elements within a repository's file system hierarchy.
--   **Inferred Layers**: Commented-out code and dependencies suggest the presence of `Service` and `Repository` layers (e.g., `RepoCollectionsService`, `UserRepo`) for business logic and data access, respectively, indicating an n-tier design.
+The repository structure includes a top-level `grms-frontend` directory, which encapsulates the entire frontend application. Within `grms-frontend`, a standard `src` directory contains the application's source code, organized into functional modules such as `ProtectedRoutes`. This indicates a modular organization for client-side features.
 
 ### Core Components
--   **`GithubRepositoryManagementApplication`**: The main Spring Boot class responsible for application startup, auto-configuration, and component scanning.
--   **`Node`**: A fundamental data model representing a file or directory. It stores properties like name, type, path, URL, and maintains references to parent and child nodes to form a tree structure. It includes methods for adding children, accessing parents, and traversing the node hierarchy.
+-   **`grms-frontend` Application**: The main client-side application responsible for rendering the user interface and managing user interactions.
+-   **`ProtectedRoutes` Module**: A critical component within the frontend that enforces client-side access control for application routes, redirecting unauthenticated users.
 
 ### Interaction & Data Flow
-1.  The `GithubRepositoryManagementApplication` initiates the Spring context upon startup.
-2.  (Inferred) The application likely interacts with external GitHub APIs to retrieve repository metadata and content.
-3.  This raw data is then processed and transformed into `Node` objects.
-4.  These `Node` objects are interconnected to form an in-memory tree structure, accurately mirroring the repository's file and directory organization.
-5.  Application logic can then traverse and query this `Node` tree to perform operations such as searching for specific files or directories.
+User interaction occurs via the `grms-frontend` application in a web browser. When a user attempts to access a protected route, the `ProtectedRoutes` component intercepts the navigation. It checks the client's `sessionStorage` for an authentication flag. If the user is deemed authenticated, the requested route's content is rendered. Otherwise, the user is redirected to a dedicated login path. This entire process for route protection occurs client-side.
 
 ### Technology Stack
--   **Java**: The primary programming language.
--   **Spring Boot**: Provides the foundational framework for application development, including dependency injection and auto-configuration.
--   **Lombok**: Used to reduce boilerplate code, generating getters and setters.
--   **Jackson**: Utilized for JSON serialization and deserialization, with specific annotations (`@JsonIgnore`) to manage circular references in the `Node` hierarchy.
--   **Jakarta Persistence API (JPA)**: An import for `@Entity` suggests potential future integration with an ORM for database persistence, though not actively used in the provided `Node` class.
+-   **Frontend Framework**: React (inferred from `.tsx` file extension and component structure).
+-   **Routing Library**: `react-router-dom` for managing client-side navigation.
+-   **Client-side Storage**: Browser `sessionStorage` for persisting temporary authentication status.
 
 ### Design Observations
--   **Hierarchical Data Modeling**: The `Node` class is well-suited for representing hierarchical data, which is essential for managing file system structures.
--   **Circular Reference Handling**: The use of `@JsonIgnore` on parent references in the `Node` class demonstrates a robust approach to prevent serialization errors in tree structures.
--   **Extensible Architecture**: The inferred presence of service and repository layers aligns with a modular design, promoting separation of concerns and maintainability.
--   **Evolving Functionality**: Commented-out `CommandLineRunner` logic and unused imports suggest the application is either in active development or has undergone refactoring, with potential future features including initial data setup or direct database interaction.
+The current approach to client-side route protection relies on checking a flag in `sessionStorage`. While this provides a basic user experience for controlled navigation, it is not a substitute for comprehensive server-side authentication and authorization mechanisms. This design suggests that robust security validation for data access and operations would be handled by a backend system, which is not detailed in the provided information.
 
 ### System Diagram
-```mermaid
-graph TD
-A[SpringApplication] --> B[GithubRepositoryManagementApplication]
-B --> C[ExternalGithubAPI]
-C --> D[RawRepositoryData]
-D --> E[NodeTreeModel]
-E --> F[ApplicationLogic]
-```
+None significant.

@@ -7,34 +7,37 @@
 # grms-frontend/src/ProtectedRoutes/ProtectedRoutes.tsx
 
 ### Overview
-This file defines a React functional component, `ProtectedRoutes`, which serves as a routing guard. Its primary purpose is to control access to specific application routes, ensuring that only authenticated users can proceed to view protected content.
+This file defines the `ProtectedRoutes` React component, which serves as a routing guard. Its primary purpose is to control access to specific routes by checking the user's authentication status and conditionally rendering the requested content or redirecting to a login page.
 
 ### Architecture & Role
-This component operates within the presentation layer of the frontend application. It integrates with `react-router-dom` to enforce authentication checks at the client-side routing level, effectively acting as middleware for routes.
+This file resides in the frontend application's routing layer. It acts as a presentational component within the React component tree, specifically a wrapper around routes that require authentication. It enforces client-side route protection by integrating with `react-router-dom`.
 
 ### Key Components
-*   `ProtectedRoutes` (functional component): This component encapsulates the logic for checking user authentication status and conditionally rendering either the protected child routes or redirecting to the login page.
+- **`ProtectedRoutes` (Functional Component)**: The default export. This component evaluates the user's authentication state and determines whether to render child routes or initiate a redirect.
 
 ### Execution Flow / Behavior
-1.  When a route configured to use `ProtectedRoutes` is accessed, the component executes.
-2.  It checks the `sessionStorage` for an item with the key 'authenticated' and a value of 'True'.
-3.  If the 'authenticated' item is found and its value is 'True', the component renders an `Outlet`, allowing any nested child routes to be displayed.
-4.  If the 'authenticated' item is not 'True' (e.g., absent or a different value), the component renders a `Navigate` component, which immediately redirects the user to the `/login` path.
+When a route wrapped by `ProtectedRoutes` is accessed:
+1. The component checks `sessionStorage` for an item with the key `authenticated`.
+2. If the value of `authenticated` in `sessionStorage` is exactly the string `'True'`, the internal `authenticated` flag is set to `true`.
+3. If the `authenticated` flag is `true`, the component renders an `<Outlet />`, allowing the nested protected routes to be displayed.
+4. If the `authenticated` flag is `false` (either `sessionStorage` item is missing, not `'True'`, or any other value), the component renders a `<Navigate to="/login" />`, redirecting the user to the `/login` path.
 
 ### Dependencies
-*   `react-router-dom`:
-    *   `Outlet`: Used to render the nested route components that are children of `ProtectedRoutes` when the user is authenticated.
-    *   `Navigate`: Utilized for programmatic redirection to the `/login` route when the user is not authenticated.
+- **`react-router-dom`**:
+    - `Outlet`: Used to render the child route components when the user is authenticated.
+    - `Navigate`: Used to programmatically redirect the user to the login page when not authenticated.
+- **`sessionStorage` (Browser API)**: Directly accessed to retrieve the authentication status persisted by the application.
 
 ### Design Notes
-*   **Authentication State Management:** The component relies on `sessionStorage` for managing the authentication state. This mechanism is client-side only and means the authentication status is tied to the browser session, expiring when the tab or browser is closed.
-*   **Security Considerations:** While effective for client-side UI protection, relying solely on `sessionStorage` for authentication status does not provide server-side security. Robust applications require backend authentication and authorization checks to protect data and sensitive operations.
-*   **Loose Coupling:** The component's direct dependency on a specific `sessionStorage` key ('authenticated') makes it tightly coupled to this particular authentication implementation.
+- The authentication check relies solely on a client-side `sessionStorage` item. This approach provides basic route protection but is not a substitute for robust server-side authentication and authorization.
+- The `authenticated` status is determined by a strict string comparison (`'True'`). This design is simple but could be made more robust by storing actual boolean values or more complex tokens.
+- This component is a pure wrapper, making it reusable across various parts of the application where authentication is required for route access.
 
 ### Diagram
 ```mermaid
 graph TD
-A[RenderProtectedRoutes] --> B{IsAuthenticated?};
-B -- Yes --> C[RenderOutlet];
-B -- No --> D[NavigateToLogin];
+A[ProtectedRoutesComponent] --> B[ReadSessionStorage]
+B --> C{IsAuthenticatedTrue?}
+C -- Yes --> D[RenderOutlet]
+C -- No --> E[RedirectToLogin]
 ```
