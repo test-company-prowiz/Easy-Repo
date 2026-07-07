@@ -7,30 +7,37 @@
 # Easy-Repo — Repository Overview
 
 ### High-Level Purpose
-This repository hosts the frontend application for a system focused on repository visualization and code analysis. Its primary objective is to engage users through informational content and guide them towards authentication to access core platform functionalities.
+The `Easy-Repo` repository appears to host a system designed to provide insights or management capabilities for other repositories, specifically by displaying their README content. Its primary objective is to offer a user interface (`grms-frontend`) that fetches and renders repository documentation from a backend service.
 
 ### Architectural Structure
-The repository demonstrates a client-side React application structure, indicated by the `grms-frontend/src` path. It follows a component-based architecture, with UI elements organized into logical sections such as `components/HeroSection/`, suggesting a modular approach to building user interfaces.
+The repository follows a client-server architectural pattern. It contains a `grms-frontend` application, which is a React-based user interface. This frontend interacts with an implied backend API (suggested by the `/easyrepo/insights/repo/getReadMe` endpoint) to retrieve data. The structure indicates a clear separation between the presentation layer and the data service layer.
 
 ### Core Components
--   **HeroSection Components**: Dedicated React components, such as `FAQSection` and `ThenSection`, that form distinct informational and feature-showcasing areas within the application's landing or hero page.
--   **UI Integration Components**: Extensive use of `@nextui-org/react` for building interactive and styled UI elements like accordions and buttons, promoting a consistent user experience.
+*   **`grms-frontend`**: A React application responsible for the user interface, state management, and interaction with the backend. It includes components like `ReadMeDrawer` for specific UI functionalities.
+*   **Backend API**: An inferred service, likely part of the `easyrepo` domain, which handles data retrieval, specifically fetching README content for specified repositories.
+*   **`UserStore` (Zustand)**: A frontend state management solution used within `grms-frontend` to manage global UI states, such as drawer visibility and selected repository context.
+*   **`AxiosUtility`**: A frontend utility for abstracting and managing API requests to the backend.
 
 ### Interaction & Data Flow
-The user interaction model begins with presenting static informational content and feature highlights.
-1.  Users interact with UI elements like accordions to reveal information or buttons to trigger navigation.
-2.  A prominent call-to-action directs users to a `/login` route, initiating the authentication flow to access the platform's core features, such as repository visualization and code analysis.
-At this stage, data displayed by these components is primarily static, embedded directly within the component code or loaded as static assets.
+1.  The `grms-frontend` application initializes and manages its UI state using `UserStore`.
+2.  Upon a user action or state change (e.g., selecting a repository), `grms-frontend` uses `AxiosUtility` to initiate a GET request to the Backend API (e.g., `/easyrepo/insights/repo/getReadMe/{repoName}`).
+3.  The Backend API processes the request, retrieves the specified repository's README content (source not detailed but implied to be external or managed by the backend).
+4.  The Backend API responds with the README content, typically as a Markdown string.
+5.  `grms-frontend` receives the Markdown content via `AxiosUtility` and renders it using a Markdown rendering library (e.g., `ReactMarkdown`) within its UI components.
 
 ### Technology Stack
--   **Frontend Framework**: React
--   **UI Component Library**: NextUI (`@nextui-org/react`)
--   **Styling Framework**: Tailwind CSS
--   **Client-Side Routing**: React Router DOM (`react-router-dom`)
--   **Icon Libraries**: Iconify (`@iconify/react`), React Icons (`react-icons/fa`)
+*   **Frontend**: React, Zustand (state management), `@nextui-org/react` (UI component library), `react-markdown` (Markdown rendering), `axios` (HTTP client).
+*   **Backend**: Implied API layer; specific technologies are not detailed from the provided information.
 
 ### Design Observations
-The frontend architecture emphasizes reusability through a component-based design pattern. It leverages a third-party UI library (NextUI) to streamline development and ensure a cohesive visual design. The current implementation for initial user-facing sections relies on static content, which simplifies initial deployment but implies future integration with dynamic data sources for core functionalities. Responsive design principles are applied using Tailwind CSS.
+The system demonstrates a modular design with a clear separation of concerns between frontend UI and backend data services. The use of a global state management solution (`Zustand`) on the frontend simplifies state propagation and component communication. API interaction is encapsulated within a custom `AxiosUtility` hook, promoting reusability and maintainability. The rendering of raw Markdown from the backend directly on the frontend simplifies backend processing by offloading presentation logic.
 
 ### System Diagram
-None significant.
+
+```mermaid
+graph TD
+EasyRepoSystem --> GrmsFrontend[grms-frontend]
+EasyRepoSystem --> BackendAPI[Backend API]
+GrmsFrontend --> BackendAPI
+GrmsFrontend --> UserStore[UserStore]
+```
