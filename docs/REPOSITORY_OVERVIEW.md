@@ -7,32 +7,30 @@
 # Easy-Repo — Repository Overview
 
 ### High-Level Purpose
-The `Easy-Repo` repository appears to host a frontend application, specifically a General Resource Management System (GRMS) frontend. Its primary objective, as inferred from the provided component, is to provide user interface functionality for managing system tags, encompassing both viewing existing tags and creating new ones.
+This repository hosts the frontend application for a system focused on repository visualization and code analysis. Its primary objective is to engage users through informational content and guide them towards authentication to access core platform functionalities.
 
 ### Architectural Structure
-The repository contains a `grms-frontend` directory, indicating a dedicated frontend application structure. Within this, the `src/components` path suggests a modular component-based architecture, typical for modern single-page applications. Components are organized into logical modules, such as `TagComponents`, grouping related UI elements.
+The repository demonstrates a client-side React application structure, indicated by the `grms-frontend/src` path. It follows a component-based architecture, with UI elements organized into logical sections such as `components/HeroSection/`, suggesting a modular approach to building user interfaces.
 
 ### Core Components
-The primary subsystem identifiable is the **Tag Management Module**. This module is responsible for:
-*   **`Tags`**: An orchestrating component that aggregates tag display and creation functionalities.
-*   **`AllTags`**: A component dedicated to rendering and displaying existing tags.
-*   **`CreateTags`**: A component providing the user interface and logic for creating new tags.
+-   **HeroSection Components**: Dedicated React components, such as `FAQSection` and `ThenSection`, that form distinct informational and feature-showcasing areas within the application's landing or hero page.
+-   **UI Integration Components**: Extensive use of `@nextui-org/react` for building interactive and styled UI elements like accordions and buttons, promoting a consistent user experience.
 
 ### Interaction & Data Flow
-At a high level, the `grms-frontend` application renders the `Tags` component. This component, in turn, renders `AllTags` and `CreateTags` concurrently. `AllTags` would typically fetch and display tag data, while `CreateTags` would handle user input for new tags and submit them. The interaction between these two child components is currently independent, with a potential future consideration for shared state if direct communication or data synchronization becomes necessary (e.g., `CreateTags` triggering a refresh in `AllTags`).
+The user interaction model begins with presenting static informational content and feature highlights.
+1.  Users interact with UI elements like accordions to reveal information or buttons to trigger navigation.
+2.  A prominent call-to-action directs users to a `/login` route, initiating the authentication flow to access the platform's core features, such as repository visualization and code analysis.
+At this stage, data displayed by these components is primarily static, embedded directly within the component code or loaded as static assets.
 
 ### Technology Stack
-The frontend application is built using:
-*   **React**: Indicated by the use of React functional components.
-*   **TypeScript**: Inferred from the `.tsx` file extension, providing type safety for the codebase.
+-   **Frontend Framework**: React
+-   **UI Component Library**: NextUI (`@nextui-org/react`)
+-   **Styling Framework**: Tailwind CSS
+-   **Client-Side Routing**: React Router DOM (`react-router-dom`)
+-   **Icon Libraries**: Iconify (`@iconify/react`), React Icons (`react-icons/fa`)
 
 ### Design Observations
-The `TagComponents` module demonstrates a strong adherence to the composition pattern, where a higher-level `Tags` component composes smaller, focused components (`AllTags`, `CreateTags`) to build a complete feature. This promotes modularity and separation of concerns. A noted area for future design consideration is the introduction of shared state or context for scenarios requiring direct interaction or data synchronization between composed components.
+The frontend architecture emphasizes reusability through a component-based design pattern. It leverages a third-party UI library (NextUI) to streamline development and ensure a cohesive visual design. The current implementation for initial user-facing sections relies on static content, which simplifies initial deployment but implies future integration with dynamic data sources for core functionalities. Responsive design principles are applied using Tailwind CSS.
 
 ### System Diagram
-```mermaid
-graph TD
-EasyRepo[EasyRepo] --> GrmsFrontend[GrmsFrontendApplication]
-GrmsFrontend --> TagManagementModule[TagManagementModule]
-TagManagementModule --> TagsComponent[TagsComponent]
-```
+None significant.
