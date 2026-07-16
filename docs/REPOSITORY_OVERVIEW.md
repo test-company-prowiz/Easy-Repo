@@ -7,37 +7,37 @@
 # Easy-Repo — Repository Overview
 
 ### High-Level Purpose
-The `Easy-Repo` repository appears to host a system designed to provide insights or management capabilities for other repositories, specifically by displaying their README content. Its primary objective is to offer a user interface (`grms-frontend`) that fetches and renders repository documentation from a backend service.
+The `Easy-Repo` repository primarily hosts the `grms-frontend` application. Its objective is to provide a client-side user interface, likely a Single-Page Application (SPA), for a system.
 
 ### Architectural Structure
-The repository follows a client-server architectural pattern. It contains a `grms-frontend` application, which is a React-based user interface. This frontend interacts with an implied backend API (suggested by the `/easyrepo/insights/repo/getReadMe` endpoint) to retrieve data. The structure indicates a clear separation between the presentation layer and the data service layer.
+The repository contains at least one distinct application, `grms-frontend`. This application follows a standard modern frontend architecture, with an `index.html` serving as the entry point and a `src` directory housing the main application logic (`main.tsx`). Development-time configurations like ESLint are co-located within the frontend project directory.
 
 ### Core Components
-*   **`grms-frontend`**: A React application responsible for the user interface, state management, and interaction with the backend. It includes components like `ReadMeDrawer` for specific UI functionalities.
-*   **Backend API**: An inferred service, likely part of the `easyrepo` domain, which handles data retrieval, specifically fetching README content for specified repositories.
-*   **`UserStore` (Zustand)**: A frontend state management solution used within `grms-frontend` to manage global UI states, such as drawer visibility and selected repository context.
-*   **`AxiosUtility`**: A frontend utility for abstracting and managing API requests to the backend.
+*   **`grms-frontend` Application**: The primary component, a Single-Page Application responsible for rendering the user interface and handling client-side logic. It leverages a JavaScript/TypeScript framework.
+*   **ESLint Configuration**: Defines and enforces code quality standards for the `grms-frontend` codebase, covering JavaScript, TypeScript, and React-specific best practices.
 
 ### Interaction & Data Flow
-1.  The `grms-frontend` application initializes and manages its UI state using `UserStore`.
-2.  Upon a user action or state change (e.g., selecting a repository), `grms-frontend` uses `AxiosUtility` to initiate a GET request to the Backend API (e.g., `/easyrepo/insights/repo/getReadMe/{repoName}`).
-3.  The Backend API processes the request, retrieves the specified repository's README content (source not detailed but implied to be external or managed by the backend).
-4.  The Backend API responds with the README content, typically as a Markdown string.
-5.  `grms-frontend` receives the Markdown content via `AxiosUtility` and renders it using a Markdown rendering library (e.g., `ReactMarkdown`) within its UI components.
+Users interact with the system via a web browser, which requests the `index.html` entry point of the `grms-frontend` application. This HTML document then bootstraps the main JavaScript/TypeScript application (`main.tsx`), which takes over rendering and client-side interactions. During development, ESLint performs static analysis on the source code to ensure adherence to defined coding standards.
 
 ### Technology Stack
-*   **Frontend**: React, Zustand (state management), `@nextui-org/react` (UI component library), `react-markdown` (Markdown rendering), `axios` (HTTP client).
-*   **Backend**: Implied API layer; specific technologies are not detailed from the provided information.
+*   **Frontend Framework**: React (inferred from React-specific ESLint plugins and `.tsx` files).
+*   **Language**: TypeScript and JavaScript.
+*   **Bundler/Dev Server**: Vite (inferred from `/vite.svg` and `type="module"` in `index.html`).
+*   **Code Quality**: ESLint, configured with `@eslint/js`, `typescript-eslint`, `eslint-plugin-react-hooks`, and `eslint-plugin-react-refresh`.
+*   **Styling**: Google Fonts (Geist, DM Sans, Lato) are utilized for typography.
 
 ### Design Observations
-The system demonstrates a modular design with a clear separation of concerns between frontend UI and backend data services. The use of a global state management solution (`Zustand`) on the frontend simplifies state propagation and component communication. API interaction is encapsulated within a custom `AxiosUtility` hook, promoting reusability and maintainability. The rendering of raw Markdown from the backend directly on the frontend simplifies backend processing by offloading presentation logic.
+The repository demonstrates a modern frontend development approach characterized by:
+*   A clear separation of concerns with a dedicated frontend application.
+*   Strong emphasis on code quality and consistency through comprehensive ESLint configurations for JavaScript, TypeScript, and React.
+*   Leveraging contemporary tooling like Vite for efficient development and bundling.
+*   Inclusion of performance optimizations, such as preconnecting to external font sources.
+*   Support for developer experience features like React Fast Refresh.
 
 ### System Diagram
 
 ```mermaid
 graph TD
-EasyRepoSystem --> GrmsFrontend[grms-frontend]
-EasyRepoSystem --> BackendAPI[Backend API]
-GrmsFrontend --> BackendAPI
-GrmsFrontend --> UserStore[UserStore]
+A[EasyRepo] --> B[GrmsFrontendApplication]
+C[UserBrowser] --> B
 ```
