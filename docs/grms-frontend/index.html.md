@@ -7,41 +7,40 @@
 # grms-frontend/index.html
 
 ### Overview
-This file serves as the primary entry point for the `grms-frontend` single-page application (SPA). It provides the foundational HTML structure, loads essential external resources, and initiates the main JavaScript application.
+This file serves as the primary entry point for the `grms-frontend` web application. It provides the initial HTML structure, loads essential resources like fonts, and bootstraps the client-side JavaScript application.
 
 ### Architecture & Role
-Architecturally, this file resides at the root of the frontend application's presentation layer. It is the initial document loaded by a web browser, responsible for bootstrapping the entire client-side experience. It functions as the host for the dynamically rendered JavaScript application.
+Architecturally, this file is the root document of the frontend layer. It is served directly to the client browser and acts as the host container for the JavaScript application, typically built with a framework like React (inferred from `main.tsx` and `<div id="root">`).
 
 ### Key Components
-*   **`<div id="root"></div>`**: This element acts as the mount point where the client-side JavaScript framework will inject and manage the application's user interface components.
-*   **`<script type="module" src="/src/main.tsx"></script>`**: This script tag loads the main application bundle, indicating a modern JavaScript module setup. It is the starting point for the frontend application's logic and rendering.
-*   **`<link rel="icon" type="image/svg+xml" href="/vite.svg" />`**: Specifies the application's favicon, which is an SVG asset. The path suggests a development environment or build system like Vite.
-*   **Google Fonts `<link>` tags**: These tags import custom fonts (Geist, DM Sans, Lato) from Google Fonts, defining the application's typographic styles.
+*   **`html` element**: The document root, defining the language as English.
+*   **`head` element**: Contains metadata, character set declaration, viewport settings, page title, and external resource links.
+*   **`body` element**: Contains the visible content of the web page.
+*   **`<div id="root">`**: A designated mount point for the client-side JavaScript application.
+*   **`<script type="module" src="/src/main.tsx">`**: Imports and executes the main application logic written in TypeScript/TSX, leveraging ES module functionality.
 
 ### Execution Flow / Behavior
-When a user navigates to the frontend application, the browser first requests and receives `index.html`. The browser then parses this HTML document:
-1.  Metadata (charset, viewport, title) is processed.
-2.  External resources like the favicon (`/vite.svg`) and custom fonts from Google Fonts are requested and loaded in parallel.
-3.  The empty `<div id="root"></div>` is prepared in the DOM.
-4.  Finally, the `/src/main.tsx` script is loaded and executed as an ES module. This script then takes control, typically initializing a JavaScript framework (e.g., React, Vue) and rendering the application's components into the `#root` element.
+When a browser requests the application, this `index.html` file is loaded first. The browser parses the HTML, renders the basic structure, and fetches linked resources such as the favicon (`/vite.svg`) and Google Fonts. Subsequently, the `<script type="module" src="/src/main.tsx">` tag triggers the loading and execution of the main JavaScript bundle, which then initializes and mounts the frontend application into the `<div id="root">` element.
 
 ### Dependencies
 *   **Internal**:
-    *   `/vite.svg`: Favicon asset.
-    *   `/src/main.tsx`: The primary JavaScript/TypeScript application entry point.
+    *   `/vite.svg`: Favicon for the application, likely served by Vite.
+    *   `/src/main.tsx`: The main JavaScript/TypeScript entry point for the client-side application.
 *   **External**:
-    *   `https://fonts.googleapis.com`: Provides the Geist, DM Sans, and Lato font families.
-    *   `https://fonts.gstatic.com`: Used for preconnecting to the Google Fonts server for improved performance.
+    *   `https://fonts.googleapis.com` and `https://fonts.gstatic.com`: Used to load custom fonts (`Geist`, `DM Sans`, `Lato`) from Google Fonts, enhancing the application's typography.
 
 ### Design Notes
-This file reflects a standard setup for a modern single-page application (SPA). The use of `type="module"` for the main script and the presence of `/vite.svg` strongly suggest a development workflow leveraging Vite or a similar module bundler. The `#root` div is a common pattern for framework-driven UIs. Preconnecting to Google Fonts is a performance optimization for faster font loading.
+This file adheres to a standard pattern for modern single-page applications (SPAs) where a minimal HTML document serves as a shell for a JavaScript-driven UI. The use of `type="module"` for the script tag and a `.tsx` extension for the main script suggests a build process involving a bundler (like Vite, indicated by `vite.svg` and common patterns) and a JavaScript framework that uses JSX/TSX. The explicit `id="root"` is a common convention for mounting React or similar applications.
 
 ### Diagram
 ```mermaid
 graph TD
-BrowserRequest --> IndexHTML
-IndexHTML --> MainTSXScript[main.tsx]
-IndexHTML --> ViteSVG[vite.svg]
-IndexHTML --> GoogleFonts[fonts.googleapis.com]
-MainTSXScript --> RootDiv[div#root]
+Browser --> LoadIndexHTML[Load index.html]
+LoadIndexHTML --> RenderHTML[Render HTML Structure]
+LoadIndexHTML --> FetchFavicon[Fetch /vite.svg]
+LoadIndexHTML --> FetchGoogleFonts[Fetch Google Fonts]
+RenderHTML --> RootDiv[div id="root" element]
+LoadIndexHTML --> LoadMainTSX[Load /src/main.tsx]
+LoadMainTSX --> InitializeApp[Initialize Application Logic]
+InitializeApp --> MountIntoRoot[Mount App into #root]
 ```

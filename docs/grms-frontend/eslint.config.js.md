@@ -7,43 +7,33 @@
 # grms-frontend/eslint.config.js
 
 ### Overview
-This file defines the ESLint configuration for the `grms-frontend` project. It integrates standard JavaScript, TypeScript, and React-specific linting rules to enforce code quality, consistency, and identify potential issues within the frontend codebase.
+This file defines the ESLint configuration for the `grms-frontend` project. Its primary purpose is to enforce code quality, consistency, and identify potential issues within TypeScript and React files during development and build processes.
 
 ### Architecture & Role
-This configuration file resides within the frontend development environment. Its role is to configure the static analysis tool (ESLint) that runs during development, pre-commit hooks, and continuous integration pipelines. It ensures that code adheres to defined standards for syntax, style, and best practices relevant to JavaScript, TypeScript, and React applications.
+This file operates within the development tooling layer of the frontend application. It is a static configuration file that dictates how the ESLint linter should analyze the project's source code, specifically targeting `.ts` and `.tsx` files. It does not contribute to the runtime behavior of the application but is crucial for maintaining code standards.
 
 ### Key Components
-- `tseslint.config()`: The primary function used to define the ESLint configuration, provided by the `typescript-eslint` package.
-- `js.configs.recommended`: Incorporates the recommended core ESLint rules for JavaScript.
-- `tseslint.configs.recommended`: Extends the configuration with recommended rules specific to TypeScript.
-- `eslint-plugin-react-hooks`: A plugin that enforces rules of hooks, ensuring correct usage of React Hooks.
-- `eslint-plugin-react-refresh`: A plugin that provides rules for React Fast Refresh (Hot Module Replacement) compatibility.
-- `globals.browser`: Configures ESLint to recognize standard browser global variables.
-- `react-refresh/only-export-components`: A specific rule configured to warn if non-components are exported, with an allowance for constant exports.
+*   **`tseslint.config(...)`**: The main function used to define the ESLint configuration, provided by the `typescript-eslint` package.
+*   **`ignores: ['dist']`**: Specifies directories or files that ESLint should explicitly skip during linting.
+*   **`extends: [js.configs.recommended, ...tseslint.configs.recommended]`**: Incorporates recommended rule sets from both standard JavaScript ESLint and `typescript-eslint`.
+*   **`files: ['**/*.ts,tsx']`**: Limits the application of this configuration block to TypeScript and TSX files.
+*   **`languageOptions.globals: globals.browser`**: Configures the linter to recognize standard browser global variables.
+*   **`plugins: {'react-hooks': reactHooks, 'react-refresh': reactRefresh}`**: Registers ESLint plugins for React Hooks and React Refresh.
+*   **`rules`**: Defines specific linting rules, including extending recommended rules from `react-hooks` and adding a custom rule for `react-refresh/only-export-components`.
 
 ### Execution Flow / Behavior
-When ESLint is executed (e.g., via `npm run lint`, IDE extensions, or CI), it loads this configuration. It then processes files matching `**/*.{ts,tsx}` (all TypeScript and TSX files in the project), applying the combined set of rules. The `dist` directory is explicitly ignored to prevent linting of compiled output. The configured rules will identify and report issues based on the defined standards.
+When an ESLint command is executed (e.g., `eslint .` or via an IDE integration), this configuration file is loaded. ESLint then processes files matching `**/*.{ts,tsx}` (excluding `dist`), applying the combined recommended rules for JavaScript and TypeScript, along with specialized rules for React Hooks and React Refresh. The `react-refresh/only-export-components` rule specifically warns about non-component exports in modules that might interfere with React Fast Refresh.
 
 ### Dependencies
-- `@eslint/js`: Provides the foundational JavaScript linting rules.
-- `globals`: Supplies definitions for global variables in various environments, specifically `browser` for this configuration.
-- `eslint-plugin-react-hooks`: Delivers linting rules specific to React Hooks.
-- `eslint-plugin-react-refresh`: Offers linting rules related to React Fast Refresh for development efficiency.
-- `typescript-eslint`: Integrates ESLint with TypeScript, enabling linting for TypeScript syntax and types.
-These are development-time dependencies, not runtime dependencies of the application itself.
+*   **`@eslint/js`**: Provides recommended base JavaScript ESLint configurations.
+*   **`globals`**: A utility library offering definitions for global variables in various environments (e.g., `browser`).
+*   **`eslint-plugin-react-hooks`**: An ESLint plugin that enforces rules of hooks for React.
+*   **`eslint-plugin-react-refresh`**: An ESLint plugin integrated with React Fast Refresh to ensure compatibility and prevent issues related to module exports.
+*   **`typescript-eslint`**: A set of tools that enables ESLint to lint TypeScript code, providing parsers, plugins, and recommended configurations.
 
 ### Design Notes
-- The configuration centralizes linting for multiple technologies (JS, TS, React) into a single, cohesive setup.
-- Explicitly ignoring the `dist` directory prevents linting of generated build artifacts, focusing analysis on source code.
-- The `allowConstantExport: true` option for `react-refresh/only-export-components` indicates a deliberate choice to permit constant exports in files, which can be useful for utilities or non-component modules that are not expected to be hot-reloaded.
-- The use of `extends` allows for easy adoption of community-recommended best practices for JavaScript and TypeScript.
-
-### Diagram
-```mermaid
-graph TD
-EslintConfig[EslintConfiguration] --> JSRules[EslintJSRules]
-EslintConfig --> TSRules[TypeScriptEslintRules]
-EslintConfig --> ReactHooksPlugin[ReactHooksPlugin]
-EslintConfig --> ReactRefreshPlugin[ReactRefreshPlugin]
-EslintConfig --> BrowserGlobals[BrowserGlobals]
-```
+The configuration prioritizes a robust linting setup for a modern React and TypeScript frontend. Key design decisions include:
+*   **Layered Configuration**: Extending recommended configurations (`js.configs.recommended`, `tseslint.configs.recommended`) provides a strong baseline, reducing the need to manually define common rules.
+*   **TypeScript-First**: Explicitly targeting `.ts` and `.tsx` files with `typescript-eslint` ensures proper parsing and type-aware linting.
+*   **React-Specific Linting**: Integration of `eslint-plugin-react-hooks` and `eslint-plugin-react-refresh` addresses common pitfalls and best practices specific to React development, especially critical for maintaining Fast Refresh functionality.
+*   **Performance**: Ignoring the `dist` directory prevents linting of generated build output, which is unnecessary and improves linting speed.
