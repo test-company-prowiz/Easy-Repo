@@ -7,38 +7,43 @@
 # Easy-Repo — Repository Overview
 
 ### High-Level Purpose
-The repository appears to host a frontend web application, specifically `grms-frontend`. Its primary objective is to deliver an interactive client-side user interface.
+The `Easy-Repo` repository hosts the frontend application for a system, likely related to "GRMS" (inferred from `grms-frontend`). Its primary objective is to provide a user interface with client-side routing, user authentication, and a dashboard, while managing server-side data interactions.
 
 ### Architectural Structure
-The repository contains at least one distinct frontend application, `grms-frontend`. This application follows a single-page application (SPA) architecture, with an `index.html` acting as the entry point for the browser and `/src/main.tsx` bootstrapping the core application logic.
+The repository contains at least one primary module, `grms-frontend`, which is a single-page application (SPA). This module is structured with a `src` directory containing the main application logic (`App.tsx`) and global styling (`index.css`). The overall structure suggests a client-side application layer.
 
 ### Core Components
-*   **`grms-frontend` Application**: The main client-side web application.
-    *   **HTML Entry Point (`index.html`)**: Serves as the initial document loaded by the browser, defining the application's shell and mounting point.
-    *   **Client-Side Application Logic (`main.tsx`)**: The primary JavaScript/TypeScript bundle responsible for rendering the UI and handling client-side interactions.
-*   **Development Tooling**:
-    *   **ESLint Configuration (`eslint.config.js`)**: Enforces code quality and consistency for TypeScript and React components.
+*   **Application Root (`App.tsx`)**: Orchestrates client-side routing, global state management for data fetching, and integrates authentication logic.
+*   **Client-Side Router (`react-router-dom`)**: Manages navigation and view rendering based on URL paths.
+*   **Server State Manager (`@tanstack/react-query`)**: Handles data fetching, caching, and synchronization with a backend.
+*   **Authentication Components (`Login`, `ProtectedRoutes`)**: Provide user login functionality and enforce access control for protected routes.
+*   **Global Stylesheet (`index.css`)**: Defines base styles, integrates Tailwind CSS, and includes custom utility classes for consistent UI presentation.
 
 ### Interaction & Data Flow
-A client browser initiates interaction by requesting the `index.html` file. This HTML document then directs the browser to load external resources, including fonts and the main JavaScript/TypeScript application bundle (`/src/main.tsx`). The JavaScript application subsequently initializes and renders its user interface within a designated HTML element (`<div id="root">`). During development, ESLint tooling analyzes the frontend codebase to ensure adherence to defined code standards.
+The frontend application, upon loading in a browser, initializes its routing and data fetching mechanisms. User interactions trigger route changes, leading to the rendering of different UI components (e.g., Home, Login, Dashboard). Protected routes enforce authentication checks before displaying content. Data required by components is fetched and managed through `@tanstack/react-query`, implying interactions with a backend API for data retrieval and submission. Styling is applied globally via Tailwind CSS.
 
 ### Technology Stack
-*   **Frontend Framework**: React (inferred from `react-hooks` and `main.tsx`).
-*   **Language**: TypeScript (explicitly mentioned for `.ts`, `.tsx`, and `typescript-eslint`).
-*   **Bundler/Build Tool**: Vite (inferred from `vite.svg` and `type="module"` script).
-*   **Linting**: ESLint, `typescript-eslint`, `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh`.
-*   **Styling/Assets**: Google Fonts, SVG assets.
+*   **React**: The primary JavaScript library for building user interfaces (inferred from `.tsx` files and component structure).
+*   **TypeScript**: Used for application development, providing type safety (inferred from `.tsx` file extension).
+*   **`react-router-dom`**: For declarative client-side routing.
+*   **`@tanstack/react-query`**: For server state management, including data fetching, caching, and synchronization.
+*   **Tailwind CSS**: A utility-first CSS framework for styling.
+*   **PostCSS**: Likely used in the build process to expand Tailwind directives (inferred from `index.css`).
 
 ### Design Observations
-The `grms-frontend` application is designed as a modern Single-Page Application, leveraging a JavaScript framework (likely React) and TypeScript for type safety. The strong emphasis on linting (ESLint with React-specific and TypeScript rules) indicates a focus on code quality, maintainability, and developer experience, particularly in supporting features like React Fast Refresh. The use of a module-based script and `vite.svg` suggests a contemporary build setup.
+*   **Centralized Frontend Concerns**: Routing and global data fetching are configured at the application root, providing a clear and consistent approach to these cross-cutting concerns.
+*   **Modular Authentication**: The `ProtectedRoutes` component abstracts authentication logic, promoting reusability and separation of concerns for access control.
+*   **Utility-First Styling**: The adoption of Tailwind CSS enables rapid UI development and ensures design consistency through a comprehensive set of utility classes.
+*   **Accessibility Focus**: Explicit styling for focus rings (`*:focus:not(ol)`) demonstrates consideration for keyboard navigation and overall accessibility.
 
 ### System Diagram
+
 ```mermaid
 graph TD
-Browser --> FrontendApplication[grms-frontend Application]
-FrontendApplication --> IndexHTML[index.html]
-IndexHTML --> MainTSX[main.tsx]
-MainTSX --> UIRendering[UI Rendering]
-FrontendApplication --> ESLintConfig[eslint.config.js]
-ESLintConfig --> CodeQualityEnforcement[Code Quality Enforcement]
+EasyRepo --> GRMSFrontend
+GRMSFrontend --> UserInterface
+UserInterface --> ClientSideRouting
+UserInterface --> ServerStateManagement
+UserInterface --> GlobalStyling
+ServerStateManagement --> BackendAPI[Backend API]
 ```

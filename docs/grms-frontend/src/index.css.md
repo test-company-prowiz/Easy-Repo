@@ -7,32 +7,26 @@
 # grms-frontend/src/index.css
 
 ### Overview
-This file serves as the primary entry point for global styles within the frontend application. It imports Tailwind CSS base, component, and utility styles, and defines application-wide styling rules for elements like `body`, `select`, and focus states.
+This file serves as the primary stylesheet for the frontend application. It imports the core Tailwind CSS directives and defines global base styles, accessibility enhancements, and custom utility classes.
 
 ### Architecture & Role
-This file resides in the presentation layer of the frontend architecture. It is responsible for establishing foundational visual styles and integrating the Tailwind CSS framework into the application's stylesheet bundle. It defines global styles and custom utility classes.
+This file resides in the frontend's styling layer. It is a static asset processed by the build pipeline (e.g., PostCSS with Tailwind) and bundled into the final application CSS. Its role is to establish the foundational visual appearance and integrate the Tailwind CSS framework.
 
 ### Key Components
-*   **`@tailwind base;`**: Injects Tailwind's base styles, which normalize CSS and provide default styling for HTML elements.
-*   **`@tailwind components;`**: Injects Tailwind's component-specific styles, often used for common UI patterns.
-*   **`@tailwind utilities;`**: Injects Tailwind's extensive set of utility classes, enabling rapid styling through atomic CSS.
-*   **`body`**: Sets a global font family to "lato", `serif` as a fallback.
-*   **`*:focus:not(ol)`**: Applies a consistent focus ring style using Tailwind utilities (`outline-none`, `ring-2`, `ring-cyan-400`, `border-cyan-400`) to all elements except ordered lists when they receive focus.
-*   **`select`**: Resets default browser appearances for `select` elements to allow for custom styling.
-*   **`.no-scrollbar`**: A custom utility class defined within `@layer utilities` to hide scrollbars across different browsers (WebKit, IE/Edge, Firefox) for elements it is applied to.
+-   **Tailwind Directives**: `@tailwind base;`, `@tailwind components;`, `@tailwind utilities;` import the respective layers of the Tailwind CSS framework, providing a utility-first styling foundation.
+-   **Global Font Definition**: Sets the `font-family` for the `body` element to "lato", serif, establishing a consistent typographic base.
+-   **Focus Ring Styles**: A global rule `*:focus:not(ol)` applies custom focus ring styles using Tailwind's `@apply` directive, enhancing keyboard navigation accessibility.
+-   **Select Element Reset**: Styles for `select` elements reset default browser appearances, enabling consistent custom styling across browsers.
+-   **`no-scrollbar` Utility**: A custom utility class defined within `@layer utilities` to hide scrollbars across different browser engines (Webkit, IE/Edge, Firefox).
 
 ### Execution Flow / Behavior
-When the application loads, this `index.css` file is processed by the build system (e.g., PostCSS with Tailwind CSS plugins). The `@tailwind` directives are expanded into their respective CSS rules. The browser then applies these global styles and any defined custom rules to the HTML document. The custom utility `.no-scrollbar` class is made available for use on specific elements.
+During the build process, a CSS preprocessor (likely PostCSS) expands the `@tailwind` directives into the full Tailwind CSS output. This file's content is then combined with other stylesheets and eventually injected into the HTML document. At runtime, the browser applies these styles to the DOM, rendering the application's visual interface according to the defined rules.
 
 ### Dependencies
-*   **Tailwind CSS**: This is a core dependency, indicated by the `@tailwind` directives and the use of `@apply` with Tailwind utility classes.
-*   **"lato" font**: The `body` style specifies the "lato" font, implying it is expected to be available (e.g., via a font import or system font).
+-   **Tailwind CSS**: This file directly depends on the Tailwind CSS framework for its utility classes and component styling. The `@tailwind` directives are processed by Tailwind's engine.
 
 ### Design Notes
-*   The use of Tailwind CSS promotes a utility-first approach to styling, minimizing custom CSS.
-*   Applying `outline-none` and then a custom `ring-2` for focus states ensures accessibility while maintaining a consistent visual theme. The `not(ol)` selector exempts ordered lists, potentially to preserve browser-default focus indication for them or address specific UI requirements.
-*   Custom scrollbar hiding in `.no-scrollbar` addresses a common UI need for cleaner layouts, though it should be used judiciously to avoid hindering user navigation.
-*   Resetting `select` appearance is a standard practice when aiming for consistent cross-browser styling of form elements.
-
-### Diagram
-None significant.
+-   The use of Tailwind CSS promotes a utility-first approach, aiming for rapid UI development and consistent design.
+-   The custom focus ring styling (`*:focus:not(ol)`) is a deliberate choice to improve accessibility and provide clear visual feedback for keyboard users, overriding default browser outlines.
+-   Resetting the default appearance of `select` elements is a common practice to gain full control over their styling, ensuring a consistent look and feel across different browsers.
+-   The `no-scrollbar` utility is a specific solution for UI elements where scrollbars are functionally unnecessary or visually undesirable.
